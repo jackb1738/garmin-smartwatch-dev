@@ -102,7 +102,7 @@ class GarminApp extends Application.AppBase {
 
     function onStart(state as Dictionary?) as Void {
         System.println("[INFO] App starting");
-        Logger.logMemoryStats("Startup");
+        //Logger.logMemoryStats("Startup");
         
         // Load saved settings from persistent storage
         //loadSettings();
@@ -125,7 +125,7 @@ class GarminApp extends Application.AppBase {
             globalTimer = null;
         }
         
-        Logger.logMemoryStats("Shutdown");
+        //Logger.logMemoryStats("Shutdown");
     }
 
     function startRecording() as Void {
@@ -407,7 +407,7 @@ class GarminApp extends Application.AppBase {
         }
 
         if (_cadenceIndex % 60 == 0 && _cadenceIndex > 0) {
-            Logger.logMemoryStats("Runtime");
+            //Logger.logMemoryStats("Runtime");
         }
     } 
 

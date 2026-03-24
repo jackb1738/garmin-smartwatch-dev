@@ -16,7 +16,7 @@ class SimpleView extends WatchUi.View {
     private var _cadenceZoneDisplay;
     private var _lastZoneState = 0; // -1 = below, 0 = inside, 1 = above
     private var _cqDisplay;
-    private var _hardcoreDisplay;
+    //private var _hardcoreDisplay;
     
     // Vibration alert tracking (no extra timers needed!)
     private var _alertStartTime = null;
@@ -273,7 +273,7 @@ class SimpleView extends WatchUi.View {
         _distanceDisplay = findDrawableById("distance_text");
         _timeDisplay = findDrawableById("time_text");
         _cqDisplay = findDrawableById("cq_text");
-        _hardcoreDisplay = findDrawableById("hardcore_text");
+        //_hardcoreDisplay = findDrawableById("hardcore_text");
     }
 
 }
