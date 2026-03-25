@@ -6,7 +6,7 @@ import Toybox.Time.Gregorian;
 import Toybox.Lang;
 
 class TimeView extends WatchUi.View {
-    private var _isAwake as Boolean = false;
+    //private var _isAwake as Boolean = false;
 
     function initialize() {
         View.initialize();
@@ -21,7 +21,7 @@ class TimeView extends WatchUi.View {
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
     function onShow() as Void {
-        _isAwake = true;
+        //_isAwake = true;
     }
 
     // Update the view
@@ -59,11 +59,11 @@ class TimeView extends WatchUi.View {
 
     // The user has just looked at their watch. Timers and animations may be started here.
     function onExitSleep() as Void {
-        _isAwake = true;
+        //_isAwake = true;
     }
 
     // Terminate any active timers and prepare for slow updates.
     function onEnterSleep() as Void {
-        _isAwake = false;
+        //_isAwake = false;
     }
 }
