@@ -10,24 +10,78 @@ class SummaryView extends WatchUi.View {
         View.initialize();
     }
 
-    function onUpdate(dc as Dc) as Void {
-        // Clear the screen
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-        dc.clear();
+function onUpdate(dc as Dc) as Void {
 
-        var app = getApp();
-        var width = dc.getWidth();
-        var height = dc.getHeight();
+    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+    dc.clear();
 
-        // Check if we have valid summary data
-        if (!app.hasValidSummaryData()) {
-            drawNoDataMessage(dc, width, height);
-            return;
-        }
+    var width = dc.getWidth();
+    var centerX = width / 2;
 
-        // Draw summary content
-        drawSummaryContent(dc, width, height, app);
-    }
+    // ✅ PUSH EVERYTHING LOWER + MORE SPACE
+    var titleY = 40;
+    var timeY = 80;
+    var startY = 115;
+    var gap = 60;  
+
+    dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+
+    // TITLE (tiny)
+    dc.drawText(centerX, titleY, Graphics.FONT_XTINY,
+        "Workout Summary",
+        Graphics.TEXT_JUSTIFY_CENTER
+    );
+
+    var app = getApp();
+
+    var duration = app.getSessionDuration();
+    var distance = app.getSessionDistance();
+    var hr = app.getAvgHeartRate();
+
+    if (duration == null) { duration = 0; }
+    if (distance == null) { distance = 0; }
+    if (hr == null) { hr = 0; }
+
+    // TIME FORMAT
+    var seconds = duration / 1000;
+    var h = seconds / 3600;
+    var m = (seconds % 3600) / 60;
+    var s = seconds % 60;
+
+    var timeStr = h.format("%02d") + ":" +
+                  m.format("%02d") + ":" +
+                  s.format("%02d");
+
+   // ===== TIme NUMBERS =====
+    dc.drawText(centerX - 15, timeY, Graphics.FONT_XTINY,
+    timeStr,
+    Graphics.TEXT_JUSTIFY_RIGHT);
+
+    dc.drawText(centerX + 5, timeY, Graphics.FONT_XTINY,
+    "TIME",
+    Graphics.TEXT_JUSTIFY_LEFT);
+
+    // ===== METRICS =====
+    var km = distance / 100000.0;
+
+    drawRow(dc, centerX, startY, km.format("%.2f"), "DISTANCE");
+    drawRow(dc, centerX, startY + gap, "--", "CADENCE");
+    drawRow(dc, centerX, startY + gap * 2, hr + "", "BPM (AVG)");
+    drawRow(dc, centerX, startY + gap * 3, "--", "STEPS");
+}
+
+
+// 🔥 UPDATED ROW (ALL TINY + MORE SPACING FRIENDLY)
+function drawRow(dc as Dc, centerX as Number, y as Number, value as String, label as String) as Void {
+
+    dc.drawText(centerX - 25, y, Graphics.FONT_XTINY,
+        value,
+        Graphics.TEXT_JUSTIFY_RIGHT);
+
+    dc.drawText(centerX + 10, y, Graphics.FONT_XTINY,
+        label,
+        Graphics.TEXT_JUSTIFY_LEFT);
+}
 
     function drawNoDataMessage(dc as Dc, width as Number, height as Number) as Void {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
@@ -72,7 +126,7 @@ class SummaryView extends WatchUi.View {
             dc.drawText(
                 width / 2,
                 yPos,
-                Graphics.FONT_SMALL,
+               Graphics.FONT_XTINY,
                 "Cadence Quality",
                 Graphics.TEXT_JUSTIFY_CENTER
             );
