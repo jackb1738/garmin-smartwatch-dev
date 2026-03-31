@@ -1,13 +1,26 @@
 import Toybox.Graphics;
-import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.System;
 import Toybox.Activity;
+import Toybox.WatchUi;
 
 class SummaryView extends WatchUi.View {
 
+    private var _iconDistance;
+    private var _iconCadence;
+    private var _iconHR;
+    private var _iconSteps;
+    private var _iconTime;
+
     function initialize() {
         View.initialize();
+
+        // Load icons for summary view
+        _iconDistance = Application.loadResource(Rez.Drawables.IconDistance);
+        _iconCadence = Application.loadResource(Rez.Drawables.IconCadence);
+        _iconHR = Application.loadResource(Rez.Drawables.IconHeartRate);
+        _iconSteps = Application.loadResource(Rez.Drawables.IconSteps);
+        _iconTime = Application.loadResource(Rez.Drawables.IconTime);
     }
 
 function onUpdate(dc as Dc) as Void {
@@ -20,9 +33,8 @@ function onUpdate(dc as Dc) as Void {
 
     // ✅ PUSH EVERYTHING LOWER + MORE SPACE
     var titleY = 40;
-    var timeY = 80;
-    var startY = 115;
-    var gap = 60;  
+    var startY = 85;
+    var gap = 45;  
 
     dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
 
@@ -34,6 +46,7 @@ function onUpdate(dc as Dc) as Void {
 
     var app = getApp();
 
+    //add for other metrics such as steps
     var duration = app.getSessionDuration();
     var distance = app.getSessionDistance();
     var hr = app.getAvgHeartRate();
@@ -52,35 +65,31 @@ function onUpdate(dc as Dc) as Void {
                   m.format("%02d") + ":" +
                   s.format("%02d");
 
-   // ===== TIme NUMBERS =====
-    dc.drawText(centerX - 15, timeY, Graphics.FONT_XTINY,
-    timeStr,
-    Graphics.TEXT_JUSTIFY_RIGHT);
-
-    dc.drawText(centerX + 5, timeY, Graphics.FONT_XTINY,
-    "TIME",
-    Graphics.TEXT_JUSTIFY_LEFT);
-
     // ===== METRICS =====
     var km = distance / 100000.0;
 
-    drawRow(dc, centerX, startY, km.format("%.2f"), "DISTANCE");
-    drawRow(dc, centerX, startY + gap, "--", "CADENCE");
-    drawRow(dc, centerX, startY + gap * 2, hr + "", "BPM (AVG)");
-    drawRow(dc, centerX, startY + gap * 3, "--", "STEPS");
+        drawRow(dc, width, startY + gap, timeStr, _iconTime, "TIME");
+        drawRow(dc, width, startY + gap * 2, km.format("%.2f"), _iconDistance, "DISTANCE");
+        drawRow(dc, width, startY + gap * 3, "--", _iconCadence, "CADENCE");
+        drawRow(dc, width, startY + gap * 4, hr + "", _iconHR, "BPM (AVG)");
+        drawRow(dc, width, startY + gap * 5, "--", _iconSteps, "STEPS");
 }
 
 
 // 🔥 UPDATED ROW (ALL TINY + MORE SPACING FRIENDLY)
-function drawRow(dc as Dc, centerX as Number, y as Number, value as String, label as String) as Void {
+function drawRow(dc as Dc, width as Number, y as Number, value as String, icon as Graphics.BitmapType, label as String) as Void {
 
-    dc.drawText(centerX - 25, y, Graphics.FONT_XTINY,
-        value,
-        Graphics.TEXT_JUSTIFY_RIGHT);
+    var leftMargin = 40;
+    var rightMargin = width - 40;
 
-    dc.drawText(centerX + 10, y, Graphics.FONT_XTINY,
-        label,
-        Graphics.TEXT_JUSTIFY_LEFT);
+    // Drawing the icon: Subtracting 24 from Y pushes the top-left corner of the icon up, to center the icon in line with the text (icon is 50x50).
+    dc.drawBitmap(leftMargin, y - 24, icon);
+
+    // Drawing the label: We add VCENTER so the vertical middle of the text lines up exactly with our y coordinate.
+    dc.drawText(leftMargin + 50, y, Graphics.FONT_XTINY, label, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+    // Drawing the value: Also using VCENTER to keep the number on the same line as the label and icon.
+    dc.drawText(rightMargin, y, Graphics.FONT_XTINY, value, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
 }
 
     function drawNoDataMessage(dc as Dc, width as Number, height as Number) as Void {

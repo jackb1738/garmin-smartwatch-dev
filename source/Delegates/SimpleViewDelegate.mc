@@ -31,12 +31,6 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
             return false;
         }
         
-        var app = getApp();
-        if (app == null) {
-            System.println("[DEBUG] App not ready");
-            return false;
-        }
-        
         System.println("[DEBUG] Handling START/STOP button press");
         return handleStartStopButton();
     }
@@ -228,7 +222,7 @@ class SaveDiscardMenuDelegate extends WatchUi.Menu2InputDelegate {
             _parentDelegate.setMenuActive(false);
 
     // 🔥 SHOW SUMMARY SCREEN INSTEAD OF CONFIRMATION
-             WatchUi.pushView(
+             WatchUi.switchToView(
              new SummaryView(),
              new SummaryViewDelegate(),
              WatchUi.SLIDE_UP

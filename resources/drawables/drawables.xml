@@ -1,3 +1,8 @@
 <drawables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
-    <bitmap id="LauncherIcon" filename="launcher_icon.svg" dithering="none" />
+    <bitmap id="LauncherIcon" filename="launcher_icon.svg" dithering="none" /> 
+    <bitmap id="IconDistance" filename="distance_icon_50.png" />
+    <bitmap id="IconCadence" filename="cadence_icon_50.png" />
+    <bitmap id="IconHeartRate" filename="heart-rate_50.png" />
+    <bitmap id="IconSteps" filename="cadence_icon_v2_50.png" />
+    <bitmap id="IconTime" filename="clock_icon_50.png" />
 </drawables>
