@@ -31,12 +31,6 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
             return false;
         }
         
-        var app = getApp();
-        if (app == null) {
-            System.println("[DEBUG] App not ready");
-            return false;
-        }
-        
         System.println("[DEBUG] Handling START/STOP button press");
         return handleStartStopButton();
     }
@@ -223,14 +217,16 @@ class SaveDiscardMenuDelegate extends WatchUi.Menu2InputDelegate {
         System.println("[DEBUG] Save/Discard selected: " + id);
 
         if (id == :save_session) {
-            app.saveSession();
-            System.println("[UI] Activity saved");
+             app.saveSession();
+             System.println("[UI] Activity saved");
             _parentDelegate.setMenuActive(false);
-            
-            var confirmationMenu = new WatchUi.Menu2({ :title => "Activity Saved!" });
-            confirmationMenu.addItem(new WatchUi.MenuItem("Done", null, :done, null));
-            WatchUi.pushView(confirmationMenu, new ConfirmationDelegate(_parentDelegate), WatchUi.SLIDE_IMMEDIATE);
-            
+
+    // 🔥 SHOW SUMMARY SCREEN INSTEAD OF CONFIRMATION
+             WatchUi.switchToView(
+             new SummaryView(),
+             new SummaryViewDelegate(),
+             WatchUi.SLIDE_UP
+    );
         } else if (id == :discard_session) {
             app.discardSession();
             System.println("[UI] Activity discarded");

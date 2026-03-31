@@ -11,12 +11,14 @@ class SummaryViewDelegate extends WatchUi.BehaviorDelegate {
     // SELECT or any key to dismiss and return to SimpleView
     function onSelect() as Boolean {
         System.println("[SUMMARY] Returning to main view");
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        // switches view to the simple view (restarting the app from the beginning)
+        WatchUi.switchToView(new SimpleView(), new SimpleViewDelegate(), WatchUi.SLIDE_DOWN);
         return true;
     }
 
-    // BACK button disabled - no input
-    function onBack() as Boolean {
+    
+    function onBack() as Boolean {  
+        WatchUi.switchToView(new SimpleView(), new SimpleViewDelegate(), WatchUi.SLIDE_DOWN);
         return true;
     }
 
@@ -26,7 +28,7 @@ class SummaryViewDelegate extends WatchUi.BehaviorDelegate {
         
         if (direction == WatchUi.SWIPE_LEFT || direction == WatchUi.SWIPE_DOWN) {
             System.println("[SUMMARY] Swiped to dismiss");
-            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            WatchUi.switchToView(new SimpleView(), new SimpleViewDelegate(), WatchUi.SLIDE_DOWN);
             return true;
         }
         
@@ -40,7 +42,7 @@ class SummaryViewDelegate extends WatchUi.BehaviorDelegate {
         // Allow any key to dismiss
         if (key == WatchUi.KEY_UP || key == WatchUi.KEY_DOWN || 
             key == WatchUi.KEY_ENTER || key == WatchUi.KEY_MENU) {
-            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            WatchUi.switchToView(new SimpleView(), new SimpleViewDelegate(), WatchUi.SLIDE_DOWN);
             return true;
         }
         
