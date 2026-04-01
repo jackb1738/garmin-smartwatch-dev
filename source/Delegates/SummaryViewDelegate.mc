@@ -17,6 +17,9 @@ class SummaryViewDelegate extends WatchUi.BehaviorDelegate {
 
     // BACK button disabled - no input
     function onBack() as Boolean {
+        System.println("[SUMMARY] Back pressed - saving and returning to main view");
+        getApp().saveSession();
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
     }
 

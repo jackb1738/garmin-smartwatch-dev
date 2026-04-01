@@ -218,54 +218,73 @@ class SaveDiscardMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     function onSelect(item as WatchUi.MenuItem) as Void {
         var id = item.getId();
-        var app = getApp();
 
         System.println("[DEBUG] Save/Discard selected: " + id);
 
         if (id == :save_session) {
-            app.saveSession();
-            System.println("[UI] Activity saved");
+            System.println("[UI] Showing summary view before saving");
             _parentDelegate.setMenuActive(false);
-            
-            var confirmationMenu = new WatchUi.Menu2({ :title => "Activity Saved!" });
-            confirmationMenu.addItem(new WatchUi.MenuItem("Done", null, :done, null));
-            WatchUi.pushView(confirmationMenu, new ConfirmationDelegate(_parentDelegate), WatchUi.SLIDE_IMMEDIATE);
-            
+            WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+            WatchUi.pushView(
+                new SummaryView(),
+                new SummaryViewSaveDelegate(_parentDelegate),
+                WatchUi.SLIDE_UP
+            );
+
         } else if (id == :discard_session) {
+            var app = getApp();
             app.discardSession();
             System.println("[UI] Activity discarded");
             _parentDelegate.setMenuActive(false);
-            
-            var confirmationMenu = new WatchUi.Menu2({ :title => "Activity Discarded" });
-            confirmationMenu.addItem(new WatchUi.MenuItem("Done", null, :done, null));
-            WatchUi.pushView(confirmationMenu, new ConfirmationDelegate(_parentDelegate), WatchUi.SLIDE_IMMEDIATE);
+            WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+            WatchUi.requestUpdate();
         }
-        
-        WatchUi.requestUpdate();
     }
 
     function onBack() as Void {
     }
 }
 
-class ConfirmationDelegate extends WatchUi.Menu2InputDelegate {
-    
+class SummaryViewSaveDelegate extends WatchUi.BehaviorDelegate {
+
     private var _parentDelegate;
 
     function initialize(parentDelegate) {
-        Menu2InputDelegate.initialize();
+        BehaviorDelegate.initialize();
         _parentDelegate = parentDelegate;
     }
 
-    function onSelect(item as WatchUi.MenuItem) as Void {
-        _parentDelegate.setMenuActive(false);
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+    function onSelect() as Boolean {
+        System.println("[SUMMARY] User confirmed summary - saving session");
+        getApp().saveSession();
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        return true;
     }
-    
-    function onBack() as Void {
-        _parentDelegate.setMenuActive(false);
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+
+    function onSwipe(event as WatchUi.SwipeEvent) as Boolean {
+        var direction = event.getDirection();
+        if (direction == WatchUi.SWIPE_DOWN || direction == WatchUi.SWIPE_LEFT) {
+            System.println("[SUMMARY] Swiped to dismiss - saving session");
+            getApp().saveSession();
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            return true;
+        }
+        return false;
+    }
+
+    function onKey(keyEvent as WatchUi.KeyEvent) as Boolean {
+        var key = keyEvent.getKey();
+        if (key == WatchUi.KEY_UP || key == WatchUi.KEY_DOWN ||
+            key == WatchUi.KEY_ENTER || key == WatchUi.KEY_MENU) {
+            System.println("[SUMMARY] Key pressed - saving session");
+            getApp().saveSession();
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            return true;
+        }
+        return false;
+    }
+
+    function onBack() as Boolean {
+        return true;
     }
 }
