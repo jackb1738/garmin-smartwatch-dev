@@ -819,7 +819,7 @@ class GarminApp extends Application.AppBase {
     }
 
     function hasValidSummaryData() as Boolean {
-        return _cadenceCount >= MIN_CQ_SAMPLES && _finalCQ != null;
+        return _cadenceCount != null && _finalCQ != null;
     }
 
     // Activity metrics getters

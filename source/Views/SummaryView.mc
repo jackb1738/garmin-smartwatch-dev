@@ -28,7 +28,23 @@ function onUpdate(dc as Dc) as Void {
     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
     dc.clear();
 
+    var app = getApp();
     var width = dc.getWidth();
+    var height = dc.getHeight();
+
+    // Only show summary if valid data exists
+    if (!app.hasValidSummaryData()) {
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            width / 2,
+            height / 2,
+            Graphics.FONT_MEDIUM,
+            "No data available",
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+        );
+        return;
+    }
+
     var centerX = width / 2;
 
     // ✅ PUSH EVERYTHING LOWER + MORE SPACE
@@ -43,8 +59,6 @@ function onUpdate(dc as Dc) as Void {
         "Workout Summary",
         Graphics.TEXT_JUSTIFY_CENTER
     );
-
-    var app = getApp();
 
     //add for other metrics such as steps
     var duration = app.getSessionDuration();
