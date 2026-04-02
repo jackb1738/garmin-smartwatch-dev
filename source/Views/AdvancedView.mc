@@ -315,34 +315,44 @@ function refreshScreen() as Void {
    
    //graph display only the number of bars for the current setting
     var selectedBars = app.getChartBarCount();
-var numBars = (cadenceCount < selectedBars) ? cadenceCount : selectedBars;
+    var numBars = (cadenceCount < selectedBars) ? cadenceCount : selectedBars;
 
 if (numBars <= 0) { return; }
 
 var barWidth = (barZoneWidth / numBars).toNumber();
+if (barWidth < 2) {
+    barWidth = 2;
+}
+
 var startIndex = (cadenceIndex - numBars + MAX_BARS) % MAX_BARS;
     
-    for (var i = 0; i < numBars; i++) {
-        var index = (startIndex + i) % MAX_BARS;
-        var cadence = cadenceHistory[index];
-        if (cadence == null) {
-            cadence = 0;
-        }
-        
-        var barHeight = ((cadence / MAX_CADENCE_DISPLAY) * chartHeight).toNumber();
-        var x = barZoneLeft + i * barWidth;
-        var y = barZoneBottom - barHeight;
+for (var i = 0; i < numBars; i++) {
+    var index = (startIndex + i) % MAX_BARS;
+    var cadence = cadenceHistory[index];
 
-        dc.setColor(getCadenceZoneColor(cadence, idealMinCadence, idealMaxCadence), Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(x, y, barWidth, barHeight);
+    if (cadence == null) {
+        cadence = 0;
     }
+
+    var barHeight = ((cadence / MAX_CADENCE_DISPLAY) * chartHeight).toNumber();
+    if (barHeight < 1 && cadence > 0) {
+    barHeight = 1;
+}
+
+    var x = barZoneLeft + i * barWidth;
+    var y = barZoneBottom - barHeight;
+
+    dc.setColor(getCadenceZoneColor(cadence, idealMinCadence, idealMaxCadence), Graphics.COLOR_TRANSPARENT);
+    dc.fillRectangle(x, y, barWidth - 1, barHeight);
+}
+
 }
 
     function getCadenceZoneColor(cadence as Number, idealMinCadence as Number, idealMaxCadence as Number) as Number {
     var colorThreshold = 20;
 
     if (cadence < idealMinCadence) {
-        if (cadence > idealMinCadence - colorThreshold) {
+        if (cadence >= idealMinCadence - colorThreshold) {
             return COLOR_BELOW_NEAR;
         } else {
             return COLOR_BELOW_FAR;
