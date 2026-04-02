@@ -10,6 +10,16 @@ class AdvancedView extends WatchUi.View {
     const MAX_BARS = 280;
     const MAX_CADENCE_DISPLAY = 200;
 
+    // Cadence zone colours
+    const COLOR_BELOW_FAR  = 0x969696; // grey
+    const COLOR_BELOW_NEAR = 0x0CC0DF; // blue
+    const COLOR_IN_ZONE    = 0x00BF63; // green
+    const COLOR_ABOVE_NEAR = 0xFF751F; // orange
+    const COLOR_ABOVE_FAR  = 0xFF0000; // red
+
+    const COLOR_TEXT_MUTED = 0x969696;
+    const COLOR_CHART_BORDER = 0x969696;
+
     private var _simulationTimer;
     
     // Vibration alert tracking (no extra timers needed!)
@@ -51,10 +61,16 @@ class AdvancedView extends WatchUi.View {
         // Draw all the elements
         drawElements(dc);
     }
+function refreshScreen() as Void {
+    var info = Activity.getActivityInfo();
+    var app = getApp();
 
-    function refreshScreen() as Void {
-        WatchUi.requestUpdate();
+    if (info != null && info.currentCadence != null) {
+        app.updateCadenceHistory(info.currentCadence.toFloat());
     }
+
+    WatchUi.requestUpdate();
+}
     
     function checkPendingVibration() as Void {
         if (_pendingSecondVibe) {
@@ -217,10 +233,9 @@ class AdvancedView extends WatchUi.View {
         var chartDurationY = height * 0.85;
 
         if (info != null && info.currentCadence != null) {
-            // Draw cadence value in green (RGB: 0,255,0 = 0x00FF00)
-            correctColor(info.currentCadence, idealMinCadence, idealMaxCadence, dc);
-            dc.drawText(width / 2, cadenceY, Graphics.FONT_XTINY, info.currentCadence.toString() + " spm", Graphics.TEXT_JUSTIFY_CENTER);
-        }
+        dc.setColor(getCadenceZoneColor(info.currentCadence, idealMinCadence, idealMaxCadence), Graphics.COLOR_TRANSPARENT);
+        dc.drawText(width / 2, cadenceY, Graphics.FONT_XTINY, info.currentCadence.toString() + " spm", Graphics.TEXT_JUSTIFY_CENTER);
+    }
 
         // Display cadence zone range
         var minZone = app.getMinCadence();
@@ -249,106 +264,98 @@ class AdvancedView extends WatchUi.View {
     **/
     
     function drawChart(dc as Dc) as Void {
-        var width = dc.getWidth();
-        var height = dc.getHeight();
-        
-        //margins value
-        var margin = width * 0.1;
-        var marginLeftRightMultiplier = 1.38;
-        var marginBottomMultiplier = 1.6;
+    var width = dc.getWidth();
+    var height = dc.getHeight();
+    
+    var margin = width * 0.1;
+    var marginLeftRightMultiplier = 1.38;
+    var marginBottomMultiplier = 1.6;
 
-        //chart position
-        var chartLeft = margin * marginLeftRightMultiplier;
-        var chartRight = width - chartLeft;
-        var chartTop = height * 0.5;
-        var chartBottom = height - margin*marginBottomMultiplier;
-        var chartWidth = chartRight - chartLeft;
-        var chartHeight = chartBottom - chartTop;
-        var quarterChartHeight = chartHeight / 4;
+    var chartLeft = margin * marginLeftRightMultiplier;
+    var chartRight = width - chartLeft;
+    var chartTop = height * 0.5;
+    var chartBottom = height - margin * marginBottomMultiplier;
+    var chartWidth = chartRight - chartLeft;
+    var chartHeight = chartBottom - chartTop;
+    var quarterChartHeight = chartHeight / 4;
 
-        //bar zone
-        var barZoneLeft = chartLeft + 1;
-        var barZoneRight = chartRight - 1;
-        var barZoneWidth = barZoneRight - barZoneLeft;
-        var barZoneBottom = chartBottom - 1;
+    var barZoneLeft = chartLeft + 1;
+    var barZoneRight = chartRight - 1;
+    var barZoneWidth = barZoneRight - barZoneLeft;
+    var barZoneBottom = chartBottom - 1;
 
-        //additional line indicator
-        var nLine = 3;
-        var lineLength = 6;
-        var line1x1 = chartLeft - lineLength;
-        var line1x2 = chartLeft;
-        var line2x1 = chartRight - 1;
-        var line2x2 = chartRight + lineLength;
-        var lineY = chartTop + quarterChartHeight;
+    var nLine = 3;
+    var lineLength = 6;
+    var line1x1 = chartLeft - lineLength;
+    var line1x2 = chartLeft;
+    var line2x1 = chartRight - 1;
+    var line2x2 = chartRight + lineLength;
+    var lineY = chartTop + quarterChartHeight;
 
-        // Draw white border around chart
-        dc.setColor(0x969696, Graphics.COLOR_TRANSPARENT);
-        dc.drawRectangle(chartLeft, chartTop, chartWidth, chartHeight);
-        for(var i = 0; i < nLine; i++){
-            dc.drawLine(line1x1,lineY,line1x2,lineY);
-            dc.drawLine(line2x1,lineY,line2x2,lineY);
-            lineY += quarterChartHeight;
+    dc.setColor(0x969696, Graphics.COLOR_TRANSPARENT);
+    dc.drawRectangle(chartLeft, chartTop, chartWidth, chartHeight);
+
+    for (var i = 0; i < nLine; i++) {
+        dc.drawLine(line1x1, lineY, line1x2, lineY);
+        dc.drawLine(line2x1, lineY, line2x2, lineY);
+        lineY += quarterChartHeight;
+    }
+    
+    var app = getApp();
+    var idealMinCadence = app.getMinCadence();
+    var idealMaxCadence = app.getMaxCadence();
+    var cadenceHistory = app.getCadenceHistory();
+
+    var cadenceIndex = app.getCadenceIndex();
+    var cadenceCount = app.getCadenceCount();
+    
+    if (cadenceCount == 0) {
+        return;
+    }
+   
+   //graph display only the number of bars for the current setting
+    var selectedBars = app.getChartBarCount();
+var numBars = (cadenceCount < selectedBars) ? cadenceCount : selectedBars;
+
+if (numBars <= 0) { return; }
+
+var barWidth = (barZoneWidth / numBars).toNumber();
+var startIndex = (cadenceIndex - numBars + MAX_BARS) % MAX_BARS;
+    
+    for (var i = 0; i < numBars; i++) {
+        var index = (startIndex + i) % MAX_BARS;
+        var cadence = cadenceHistory[index];
+        if (cadence == null) {
+            cadence = 0;
         }
         
-        // Get data from app
-        var app = getApp();
-        var idealMinCadence = app.getMinCadence();
-        var idealMaxCadence = app.getMaxCadence();
-        var cadenceHistory = app.getCadenceHistory();
+        var barHeight = ((cadence / MAX_CADENCE_DISPLAY) * chartHeight).toNumber();
+        var x = barZoneLeft + i * barWidth;
+        var y = barZoneBottom - barHeight;
 
-        var cadenceIndex = app.getCadenceIndex();
-        var cadenceCount = app.getCadenceCount();
-        
-        if(cadenceCount == 0) {return;}
-       
-        var numBars = cadenceCount;
-        var barWidth = (barZoneWidth / MAX_BARS).toNumber();
-        var startIndex = (cadenceIndex - numBars + MAX_BARS) % MAX_BARS;
-        
-        // FIXED SCALE - bars have fixed height based on absolute cadence
-        // Colors change dynamically based on your zone
-        for (var i = 0; i < numBars; i++) {
-            var index = (startIndex + i) % MAX_BARS;
-            var cadence = cadenceHistory[index];
-            if(cadence == null) {cadence = 0;}
-            
-            // Fixed bar height - same cadence always same height
-            var barHeight = ((cadence / MAX_CADENCE_DISPLAY) * chartHeight).toNumber();
-            var x = barZoneLeft + i * barWidth;
-            var y = barZoneBottom - barHeight;
+        dc.setColor(getCadenceZoneColor(cadence, idealMinCadence, idealMaxCadence), Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(x, y, barWidth, barHeight);
+    }
+}
 
-            correctColor(cadence, idealMinCadence, idealMaxCadence, dc);
-            
-            dc.fillRectangle(x, y, barWidth, barHeight);
+    function getCadenceZoneColor(cadence as Number, idealMinCadence as Number, idealMaxCadence as Number) as Number {
+    var colorThreshold = 20;
+
+    if (cadence < idealMinCadence) {
+        if (cadence > idealMinCadence - colorThreshold) {
+            return COLOR_BELOW_NEAR;
+        } else {
+            return COLOR_BELOW_FAR;
+        }
+    } else if (cadence > idealMaxCadence) {
+        if (cadence < idealMaxCadence + colorThreshold) {
+            return COLOR_ABOVE_NEAR;
+        } else {
+            return COLOR_ABOVE_FAR;
         }
     }
 
+    return COLOR_IN_ZONE;
+}
 
-    function correctColor(cadence as Number, idealMinCadence as Number, idealMaxCadence as Number, dc as Dc) as Void{
-        var colorThreshold = 20;
-        
-        if(cadence < idealMinCadence)
-        {
-            if(cadence  > idealMinCadence - colorThreshold){ 
-                dc.setColor(0x0cc0df, Graphics.COLOR_TRANSPARENT); //blue
-            }
-            else{
-                dc.setColor(0x969696, Graphics.COLOR_TRANSPARENT);//grey
-            }
-            
-        }
-        else if (cadence > idealMaxCadence)
-        {
-            if(cadence < idealMaxCadence + colorThreshold){
-                dc.setColor(0xff751f, Graphics.COLOR_TRANSPARENT);//orange
-            }
-            else{
-                dc.setColor(0xFF0000, Graphics.COLOR_TRANSPARENT);//red
-            }
-        }
-        else
-        {
-            dc.setColor(0x00bf63, Graphics.COLOR_TRANSPARENT);//green
-        }
-    }
 }

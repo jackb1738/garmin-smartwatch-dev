@@ -634,9 +634,15 @@ class GarminApp extends Application.AppBase {
     }
 
     function setChartDuration(value as Number) as Void {
-        _chartDuration = value;
-        System.println(CHART_ENUM_NAMES[_chartDuration] + " selected.");
-    }
+    _chartDuration = value;
+
+    // Reset rolling average buffer to match new duration
+    _cadenceBarAvg = new [_chartDuration];
+    _cadenceAvgIndex = 0;
+    _cadenceAvgCount = 0;
+
+    System.println(CHART_ENUM_NAMES[_chartDuration] + " selected.");
+}
     
     function getChartDuration() as String{
         return CHART_ENUM_NAMES[_chartDuration];
@@ -806,6 +812,10 @@ class GarminApp extends Application.AppBase {
 
     function getPeakHeartRate() {
         return _peakHeartRate;
+    }
+
+    function getChartBarCount() as Number {
+        return _chartDuration;
     }
 }
 
