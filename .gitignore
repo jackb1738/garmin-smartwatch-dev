@@ -213,3 +213,8 @@ bin/
 gen/
 *.prg
 *.prg.debug.xml
+
+developer_key
+developer_key.der
+developer_key.pem
+.vscode/launch.json
