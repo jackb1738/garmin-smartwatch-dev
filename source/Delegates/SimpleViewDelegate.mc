@@ -39,8 +39,8 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
         var app = getApp();
 
         if (app.isIdle()) {
-            app.startRecording();
-            System.println("[UI] Activity started");
+            var view = new StartConfirmView();
+            WatchUi.pushView(view, new StartConfirmViewDelegate(view), WatchUi.SLIDE_UP);
             WatchUi.requestUpdate();
         } 
         else if (app.isRecording()) {
