@@ -253,33 +253,61 @@ class GarminApp extends Application.AppBase {
         _sessionState = STOPPED;
     }
 
-    function saveSession() as Void {
-        if (_sessionState != STOPPED) {
-            System.println("[INFO] Cannot save - session not stopped");
-            return;
-        }
+    // function saveSession() as Void {
+    //     if (_sessionState != STOPPED) {
+    //         System.println("[INFO] Cannot save - session not stopped");
+    //         return;
+    //     }
 
-        System.println("[INFO] Saving activity session");
+    //     System.println("[INFO] Saving activity session");
         
-        // Save Garmin activity session
-        if (activitySession != null) {
-            activitySession.save();
-            System.println("[INFO] Garmin activity session saved to FIT file");
-            activitySession = null;
-        }
+    //     // Save Garmin activity session
+    //     if (activitySession != null) {
+    //         activitySession.save();
+    //         System.println("[INFO] Garmin activity session saved to FIT file");
+    //         activitySession = null;
+    //     }
         
-        var totalTime = 0;
-        if (_sessionStartTime != null) {
-            totalTime = System.getTimer() - _sessionStartTime - _sessionPausedTime;
-        }
+    //     var totalTime = 0;
+    //     if (_sessionStartTime != null) {
+    //         totalTime = System.getTimer() - _sessionStartTime - _sessionPausedTime;
+    //     }
         
-        System.println("===== SESSION SAVED =====");
-        System.println("Duration: " + (totalTime / 1000).format("%d") + " seconds");
-        System.println("Cadence samples: " + _cadenceCount.toString());
-        System.println("Final CQ: " + (_finalCQ != null ? _finalCQ.format("%d") + "%" : "N/A"));
-        System.println("========================");
+    //     System.println("===== SESSION SAVED =====");
+    //     System.println("Duration: " + (totalTime / 1000).format("%d") + " seconds");
+    //     System.println("Cadence samples: " + _cadenceCount.toString());
+    //     System.println("Final CQ: " + (_finalCQ != null ? _finalCQ.format("%d") + "%" : "N/A"));
+    //     System.println("========================");
         
-        resetSession();
+    //     // resetSession();
+    // }
+
+    function saveSession() as Void {
+
+    if (_sessionState != STOPPED) {
+        System.println("[INFO] Cannot save - session not stopped");
+        return;
+    }
+
+    System.println("[INFO] Saving activity session");
+    
+    if (activitySession != null) {
+        activitySession.save();
+        activitySession = null;
+    }
+
+    // 🔥 STORE DATA HERE
+    if (_sessionStartTime != null) {
+        _sessionDuration = System.getTimer() - _sessionStartTime - _sessionPausedTime;
+    }
+
+    // Distance & HR already captured in captureActivityMetrics()
+
+    System.println("[SAVE] Duration stored: " + _sessionDuration);
+    System.println("[SAVE] Distance stored: " + _sessionDistance);
+
+    // ❌ REMOVE RESET HERE
+    // resetSession();
     }
 
     function discardSession() as Void {
@@ -705,21 +733,25 @@ class GarminApp extends Application.AppBase {
     function getFinalCQTrend() {
         return _finalCQTrend;
     }
-
-    function getSessionDuration() as Number {
-        if (_sessionStartTime == null) {
-            return 0;
-        }
-        
-        var currentTime = System.getTimer();
-        var totalTime = currentTime - _sessionStartTime - _sessionPausedTime;
-        
-        if (_sessionState == PAUSED && _lastPauseTime != null) {
-            totalTime -= (currentTime - _lastPauseTime);
-        }
-        
-        return totalTime / 1000;
+    function getSessionDuration() {
+    return _sessionDuration;
     }
+
+
+    // function getSessionDuration() as Number {
+    //     if (_sessionStartTime == null) {
+    //         return 0;
+    //     }
+        
+    //     var currentTime = System.getTimer();
+    //     var totalTime = currentTime - _sessionStartTime - _sessionPausedTime;
+        
+    //     if (_sessionState == PAUSED && _lastPauseTime != null) {
+    //         totalTime -= (currentTime - _lastPauseTime);
+    //     }
+        
+    //     return totalTime / 1000;
+    // }
 
     function getInitialView() as [Views] or [Views, InputDelegates] {
         return [ new SimpleView(), new SimpleViewDelegate() ];
@@ -787,7 +819,15 @@ class GarminApp extends Application.AppBase {
     }
 
     function hasValidSummaryData() as Boolean {
-        return _cadenceCount >= MIN_CQ_SAMPLES && _finalCQ != null;
+        return Activity.getActivityInfo() != null;
+    }
+
+    function getfinalQC() as String{
+        if (_finalCQ == null) {
+            return "N/A";
+        }else{
+            return _finalCQ.toString() + "%";
+        }
     }
 
     // Activity metrics getters

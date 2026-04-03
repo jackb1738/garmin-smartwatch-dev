@@ -4,8 +4,6 @@ import Toybox.WatchUi;
 import Toybox.Application;
 
 class AdvancedViewDelegate extends WatchUi.BehaviorDelegate { 
-    
-    private var _currentView = null;
 
     function initialize(view as AdvancedView) {
         BehaviorDelegate.initialize();
