@@ -1,7 +1,7 @@
 import Toybox.Graphics;
 import Toybox.WatchUi;
 
-class SettingsView extends WatchUi.View {
+class CadenceSettingsMenuView extends WatchUi.View {
 
     function initialize() {
         View.initialize();
@@ -23,7 +23,7 @@ class SettingsView extends WatchUi.View {
             width / 2,
             height / 2,
             Graphics.FONT_MEDIUM,
-            "Settings",
+            "Select cadence range",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
         );
     }
