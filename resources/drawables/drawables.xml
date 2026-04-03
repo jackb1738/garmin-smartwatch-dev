@@ -1,3 +1,16 @@
 <drawables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+<<<<<<< Updated upstream
     <bitmap id="LauncherIcon" filename="launcher_icon.svg" dithering="none" />
+=======
+    <bitmap id="LauncherIcon" filename="launcher_icon.svg" dithering="none" /> 
+    <bitmap id="IconDistance" filename="distance_icon_50.png" />
+    <bitmap id="IconCadence" filename="cadence_icon_50.png" />
+    <bitmap id="IconHeartRate" filename="heart-rate_50.png" />
+    <bitmap id="IconSteps" filename="cadence_icon_v2_50.png" />
+    <bitmap id="IconTime" filename="clock_icon_50.png" />
+
+    <bitmap id="TickIcon" filename="Tick_Icon.png" />
+    <bitmap id="CrossIcon" filename="Cross_Icon.png" />
+    <bitmap id="RecIcon" filename="Rec_Icon.png" />
+>>>>>>> Stashed changes
 </drawables>
