@@ -80,124 +80,49 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
     
-
-function onKey(keyEvent as WatchUi.KeyEvent) as Boolean {
-
+function onKeyPressed(keyEvent as KeyEvent) as Boolean {
     var key = keyEvent.getKey();
-    var type = keyEvent.getType();
 
-    // 👉 HANDLE UP BUTTON
     if (key == WatchUi.KEY_UP) {
-
-        // ✅ PRESS START
-        if (type == WatchUi.KEY_DOWN) {
-            _upPressStartTime = getTimeMs();
-            return true;
-        }
-
-        // ✅ RELEASE
-        if (type == WatchUi.KEY_UP) {
-
-            var currentTime = getTimeMs();
-            var pressDuration = currentTime - _upPressStartTime;
-
-            // ✅ LONG PRESS → SETTINGS
-            if (pressDuration > _longPressThreshold) {
-                pushSettingsView();
-                _lastUpClickTime = 0; // 🔥 ADD THIS
-                return true;
-            }
-            // ✅ DOUBLE CLICK DETECTION
-            if (_lastUpClickTime != 0 &&
-                (currentTime - _lastUpClickTime) < _doubleClickThreshold) {
-
-                System.println("DOUBLE CLICK TRIGGERED");
-
-                // 👉 TEST ONLY ( vibration )
-                toggleVibration();
-
-                _lastUpClickTime = 0;
-                return true;
-            }
-
-            // 👉 FIRST CLICK (wait for second click)
-            _lastUpClickTime = currentTime;
-            return true;      
-        }
-    }
-
-    // ✅ KEEP DOWN BUTTON
-    if (key == WatchUi.KEY_DOWN) {
-        _currentView = new AdvancedView();
-        WatchUi.pushView(
-            _currentView,
-            new AdvancedViewDelegate(_currentView),
-            WatchUi.SLIDE_DOWN
-        );
+        // Start stopwatch for long press detection
+        _upPressStartTime = getTimeMs();
         return true;
     }
 
     return false;
 }
-//     function onKey(keyEvent as WatchUi.KeyEvent) as Boolean {
 
-//     var key = keyEvent.getKey();
-//     var type = keyEvent.getType();
+function onKeyReleased(keyEvent as KeyEvent) as Boolean {
+    var key = keyEvent.getKey();
+    var currentTime = getTimeMs();
 
-//     // 👉 HANDLE ONLY UP BUTTON
-//     if (key == WatchUi.KEY_UP) {
+    if (key == WatchUi.KEY_UP) {
+        var pressDuration = currentTime - _upPressStartTime;
 
-//         // ✅ PRESS START
-//         if (type == WatchUi.KEY_DOWN) {
-//             _upPressStartTime = getTimeMs();
-//             return true;
-//         }
+        // Check for long press
+        if (pressDuration >= _longPressThreshold) {
+            System.println("[DEBUG] Long press detected");
+            pushSettingsView();
+            _lastUpClickTime = 0; // Reset double click timer
+            return true;
+        }
 
-//         // ✅ RELEASE
-//         if (type == WatchUi.KEY_UP) {
+        // Check for double click
+        if (_lastUpClickTime != 0 && (currentTime - _lastUpClickTime) < _doubleClickThreshold) {
+            System.println("[DEBUG] Double click detected");
+            toggleVibration();
+            _lastUpClickTime = 0; // Reset double click timer
+            return true;
+        }
 
-//             var currentTime = getTimeMs();
-//             var pressDuration = currentTime - _upPressStartTime;
+        // Otherwise, treat as single click and start waiting for potential double click
+        _lastUpClickTime = currentTime;
+        return true;
+    }
 
-//             // ✅ LONG PRESS → SETTINGS
-//             if (pressDuration > 800) {
-//                 System.println("[DEBUG] LONG PRESS");
+    return false;
+}
 
-//                 pushSettingsView();
-//                 _lastUpClickTime = 0;
-//                 return true;
-//             }
-
-//             // ✅ DOUBLE CLICK
-//             if (_lastUpClickTime != 0 &&
-//                 (currentTime - _lastUpClickTime) < _doubleClickThreshold) {
-
-//                 System.println("[DEBUG] DOUBLE CLICK WORKING");
-
-//                 toggleVibration();
-//                 _lastUpClickTime = 0;
-//                 return true;
-//             }
-
-//             // first click
-//             _lastUpClickTime = currentTime;
-//             return true;
-//         }
-//     }
-
-//     // ✅ DOWN BUTTON (keep)
-//     if (key == WatchUi.KEY_DOWN) {
-//         _currentView = new AdvancedView();
-//         WatchUi.pushView(
-//             _currentView,
-//             new AdvancedViewDelegate(_currentView),
-//             WatchUi.SLIDE_DOWN
-//         );
-//         return true;
-//     }
-
-//     return false;
-// }
 
     function toggleVibration() as Void {
 
