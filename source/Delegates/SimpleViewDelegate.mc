@@ -30,8 +30,6 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
         _lastUpClickTime = 0;
         _upPressStartTime = 0;
         return true;
-    //     pushSettingsView();
-    //     return true;
      }
     
 
@@ -86,6 +84,16 @@ function onKeyPressed(keyEvent as KeyEvent) as Boolean {
     if (key == WatchUi.KEY_UP) {
         // Start stopwatch for long press detection
         _upPressStartTime = getTimeMs();
+        return true;
+    }
+    else if (key == WatchUi.KEY_DOWN) {
+        //down button > go to advanced view
+            _currentView = new AdvancedView();
+            WatchUi.pushView(
+                _currentView,
+                new AdvancedViewDelegate(_currentView),
+                WatchUi.SLIDE_DOWN
+            );
         return true;
     }
 
@@ -152,11 +160,6 @@ function onKeyReleased(keyEvent as KeyEvent) as Boolean {
             return true;
         }
 
-        // if (direction == WatchUi.SWIPE_LEFT) {
-        //     pushSettingsView();
-        //     return true;
-        // }
-
         return false;
     }
 
@@ -186,46 +189,32 @@ function onKeyReleased(keyEvent as KeyEvent) as Boolean {
         WatchUi.pushView(menu, new SaveDiscardMenuDelegate(self), WatchUi.SLIDE_UP);
     }
 
-    // function pushSettingsView() as Void {
-
-    //     WatchUi.switchToView(new SettingsView(), new SettingsMenuDelegate(), WatchUi.SLIDE_UP);
-    // }
     function pushSettingsView() as Void {
-    WatchUi.pushView(new SettingsView(), new SettingsMenuDelegate(), WatchUi.SLIDE_UP);
-}
+        WatchUi.switchToView(new SettingsView(), new SettingsMenuDelegate(), WatchUi.SLIDE_UP);
+    }
 
     function setMenuActive(active as Boolean) as Void {
         _menuActive = active;
         System.println("[DEBUG] Menu active state set to: " + active);
     }
 
-//     function onBack() as Boolean {
-//         var app = getApp();
-        
-//         if (app.isRecording() || app.isPaused() || app.isStopped()) {
-//             System.println("[UI] Session active - use Stop to exit");
-//             return true;
-//         }
-        
-//         return false;
-//     }
-                function onBack() as Boolean {
-                var app = getApp();
+    function onBack() as Boolean {
+        var app = getApp();
 
-                if (app.isRecording() || app.isPaused() || app.isStopped()) {
-                    System.println("[UI] Session active - use Stop to exit");
-                    return true;
-                }
+        if (app.isRecording() || app.isPaused() || app.isStopped()) {
+            System.println("[UI] Session active - use Stop to exit");
+            return true;
+        }
 
-                //  FULL RESET (THIS FIXES EVERYTHING)
-                WatchUi.switchToView(
-                    new SimpleView(),
-                    new SimpleViewDelegate(),
-                    WatchUi.SLIDE_IMMEDIATE
-                );
+        //  FULL RESET (THIS FIXES EVERYTHING)
+        WatchUi.switchToView(
+            new SimpleView(),
+            new SimpleViewDelegate(),
+            WatchUi.SLIDE_IMMEDIATE
+        );
 
-                return true;
-            }
+        return true;
+    }
  }
 
 class ActivityControlMenuDelegate extends WatchUi.Menu2InputDelegate {
@@ -242,8 +231,6 @@ class ActivityControlMenuDelegate extends WatchUi.Menu2InputDelegate {
         var app = getApp();
 
         System.println("[DEBUG] Menu item selected: " + id);
-
-
 
         if (id == :pause_activity) {
             app.pauseRecording();
