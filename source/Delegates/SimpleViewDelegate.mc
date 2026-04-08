@@ -1,12 +1,16 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.System;
+import Toybox.Timer;
 
 class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
 
     private var _currentView = null;
     private var _initTime = null;
     private var _menuActive = false;
+    private var _lastUpPressTime = 0;
+    private var _upPressTimer as Timer.Timer?;
+    private static const DOUBLE_PRESS_WINDOW = 300;
 
     function initialize() {
         BehaviorDelegate.initialize();
@@ -71,13 +75,48 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
 
-        if (key == WatchUi.KEY_UP) {
-            pushSettingsView();
-            return true;
-        }
+
+
+    if (key == WatchUi.KEY_UP) {
+    var currentTime = System.getTimer();
+    System.println("[SimpleViewDelegate] UP pressed");
+
+    if (currentTime - _lastUpPressTime < DOUBLE_PRESS_WINDOW) {
+        var app = getApp();
+        var enabled = app.getVibrationEnabled();
+        app.setVibrationEnabled(!enabled);
+
+        System.println("[SimpleViewDelegate] Vibration toggled: " + (!enabled).toString());
+
+        // optional visual feedback
+        // Vibration toggled, no visual feedback needed
+
+        _lastUpPressTime = 0;
+        return true;
+    }
+
+    _lastUpPressTime = currentTime;
+    return true;
+}
 
         return false;
     }
+
+
+    function handleSingleUpPress() as Void {
+    _lastUpPressTime = 0;
+    pushSettingsView();
+}
+
+function showVibrationStatus(enabled as Boolean) as Void {
+    WatchUi.pushView(
+        new VibrationView(enabled),
+        new TimeViewDelegate(),
+        WatchUi.SLIDE_IMMEDIATE
+    );
+}
+
+
 
     function onSwipe(event as WatchUi.SwipeEvent) as Boolean {
         var direction = event.getDirection();
@@ -145,6 +184,40 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
         
         return false;
     }
+
+       function onPreviousPage() as Boolean {
+    var currentTime = System.getTimer();
+    System.println("[SimpleViewDelegate] UP pressed via onPreviousPage");
+
+    if (_lastUpPressTime != 0 && (currentTime - _lastUpPressTime) < DOUBLE_PRESS_WINDOW) {
+        if (_upPressTimer != null) {
+            _upPressTimer.stop();
+            _upPressTimer = null;
+        }
+
+        var app = getApp();
+        var enabled = app.getVibrationEnabled();
+        var newEnabled = !enabled;
+        app.setVibrationEnabled(newEnabled);
+
+        System.println("[SimpleViewDelegate] Vibration toggled: " + newEnabled.toString());
+
+        _lastUpPressTime = 0;
+        showVibrationStatus(newEnabled);
+        return true;
+    }
+
+    _lastUpPressTime = currentTime;
+
+    if (_upPressTimer != null) {
+        _upPressTimer.stop();
+    }
+
+    _upPressTimer = new Timer.Timer();
+    _upPressTimer.start(method(:handleSingleUpPress), DOUBLE_PRESS_WINDOW, false);
+
+    return true;
+}
 }
 
 class ActivityControlMenuDelegate extends WatchUi.Menu2InputDelegate {
