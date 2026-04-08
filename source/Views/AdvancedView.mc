@@ -19,6 +19,10 @@ class AdvancedView extends WatchUi.View {
 
     const COLOR_TEXT_MUTED = 0x969696;
     const COLOR_CHART_BORDER = 0x969696;
+    // Haptic feedback settings
+    const HAPTIC_STRENGTH = 50;
+    const HAPTIC_DURATION = 200;
+    const DOUBLE_VIBE_DELAY = 240;
 
     private var _simulationTimer;
     
@@ -48,6 +52,9 @@ class AdvancedView extends WatchUi.View {
         // Reset alert state
         _alertStartTime = null;
         _lastAlertTime = 0;
+        //That prevents a delayed buzz from firing after leaving the view.
+        _pendingSecondVibe = false;
+        _secondVibeTime = 0;
     }
 
     function onUpdate(dc as Dc) as Void {
@@ -71,38 +78,68 @@ function refreshScreen() as Void {
 
     WatchUi.requestUpdate();
 }
-    
-    function checkPendingVibration() as Void {
-        if (_pendingSecondVibe) {
-            var currentTime = System.getTimer();
-            if (currentTime >= _secondVibeTime) {
-                // Trigger second vibration
-                if (Attention has :vibrate) {
-                    var vibeData = [new Attention.VibeProfile(50, 200)];
-                    Attention.vibrate(vibeData);
-                }
-                _pendingSecondVibe = false;
-            }
+
+    // Haptic feedback behaviour:
+    // - Below cadence zone: single buzz
+    // - Above cadence zone: double buzz
+    // - Repeats every 30 seconds while still out of zone
+    // - Stops after 3 minutes
+    // - All buzzes are disabled when vibration toggle is OFF
+    // Returns true if vibration alerts are currently enabled
+
+    function canVibrate() as Boolean {
+    return getApp().isVibrationEnabled();
+}
+
+
+    // Plays one vibration pulse for cadence alerts
+    function playHapticPulse() as Void {
+        if (!canVibrate()) {
+            return;
         }
-    }
-    
-    function triggerSingleVibration() as Void {
+
         if (Attention has :vibrate) {
-            var vibeData = [new Attention.VibeProfile(50, 200)];
+            var vibeData = [new Attention.VibeProfile(HAPTIC_STRENGTH, HAPTIC_DURATION)];
             Attention.vibrate(vibeData);
         }
     }
+
     
-    function triggerDoubleVibration() as Void {
-        if (Attention has :vibrate) {
-            // First vibration
-            var vibeData = [new Attention.VibeProfile(50, 200)];
-            Attention.vibrate(vibeData);
-            
-            // Schedule second vibration after 240ms
-            _pendingSecondVibe = true;
-            _secondVibeTime = System.getTimer() + 240;
+        function checkPendingVibration() as Void {
+        if (!_pendingSecondVibe) {
+            return;
         }
+
+        // If vibration was disabled after the first buzz, cancel the second buzz
+        if (!canVibrate()) {
+            _pendingSecondVibe = false;
+            return;
+        }
+
+        var currentTime = System.getTimer();
+        if (currentTime >= _secondVibeTime) {
+            playHapticPulse();
+            _pendingSecondVibe = false;
+        }
+    }
+
+        // Plays the alert pattern for cadence below the target zone
+        function triggerSingleVibration() as Void {
+        playHapticPulse();
+    }
+
+        // Plays the alert pattern for cadence above the target zone
+        function triggerDoubleVibration() as Void {
+        if (!canVibrate()) {
+            _pendingSecondVibe = false;
+            return;
+        }
+
+        // Above-zone alert = two buzzes
+        playHapticPulse();
+
+        _pendingSecondVibe = true;
+        _secondVibeTime = System.getTimer() + DOUBLE_VIBE_DELAY;
     }
     
     function checkAndTriggerAlerts() as Void {
@@ -134,6 +171,7 @@ function refreshScreen() as Void {
             }
         }
     }
+
     
     function checkCadenceZone() as Void {
         var info = Activity.getActivityInfo();

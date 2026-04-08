@@ -63,6 +63,7 @@ class GarminApp extends Application.AppBase {
 
     private var _userHeight = 170;
     private var _userSpeed = 10;
+    private var _vibrationEnabled = true;
     private var _experienceLvl = Beginner;
     private var _userGender = Male;
     private var _chartDuration = ThirtyminChart as Number;
@@ -634,6 +635,20 @@ class GarminApp extends Application.AppBase {
     function getMinCadence() as Number {
         return _idealMinCadence;
     }
+
+    function isVibrationEnabled() as Boolean {
+    return _vibrationEnabled;
+}
+
+function setVibrationEnabled(enabled as Boolean) as Void {
+    _vibrationEnabled = enabled;
+}
+
+function toggleVibrationEnabled() as Boolean {
+    _vibrationEnabled = !_vibrationEnabled;
+    System.println("[HAPTIC] Vibration enabled: " + _vibrationEnabled);
+    return _vibrationEnabled;
+}
     
     function getMaxCadence() as Number {
         return _idealMaxCadence;    

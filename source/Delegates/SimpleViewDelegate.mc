@@ -7,6 +7,8 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
     private var _currentView = null;
     private var _initTime = null;
     private var _menuActive = false;
+    private var _lastUpPressTime = 0;
+    const DOUBLE_PRESS_WINDOW = 500;
 
     function initialize() {
         BehaviorDelegate.initialize();
@@ -71,7 +73,21 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
 
-        if (key == WatchUi.KEY_UP) {
+         if (key == WatchUi.KEY_UP) {
+            var currentTime = System.getTimer();
+            var app = getApp();
+
+            if ((currentTime - _lastUpPressTime) <= DOUBLE_PRESS_WINDOW) {
+                var enabled = app.toggleVibrationEnabled();
+
+                System.println("[HAPTIC] Quick toggle used. Enabled = " + enabled);
+
+                _lastUpPressTime = 0;
+                WatchUi.requestUpdate();
+                return true;
+            }
+
+            _lastUpPressTime = currentTime;
             pushSettingsView();
             return true;
         }

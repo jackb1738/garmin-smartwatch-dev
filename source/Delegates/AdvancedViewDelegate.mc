@@ -5,6 +5,9 @@ import Toybox.Application;
 
 class AdvancedViewDelegate extends WatchUi.BehaviorDelegate { 
 
+    private var _lastUpPressTime = 0;
+    const DOUBLE_PRESS_WINDOW = 500;
+    
     function initialize(view as AdvancedView) {
         BehaviorDelegate.initialize();
     }
@@ -31,11 +34,25 @@ class AdvancedViewDelegate extends WatchUi.BehaviorDelegate {
         var key = keyEvent.getKey();
 
         // Scroll down to SimpleView (completing the loop)
-        if(key == WatchUi.KEY_DOWN) {
+                if (key == WatchUi.KEY_UP) {
+            var currentTime = System.getTimer();
+            var app = Application.getApp() as GarminApp;
+
+            if ((currentTime - _lastUpPressTime) <= DOUBLE_PRESS_WINDOW) {
+                var enabled = app.toggleVibrationEnabled();
+                System.println("[HAPTIC] Quick toggle used. Enabled = " + enabled);
+
+                _lastUpPressTime = 0;
+                WatchUi.requestUpdate();
+                return true;
+            }
+
+            _lastUpPressTime = currentTime;
+
             WatchUi.switchToView(
                 new SimpleView(),
                 new SimpleViewDelegate(),
-                WatchUi.SLIDE_DOWN
+                WatchUi.SLIDE_UP
             );
             return true;
         }
