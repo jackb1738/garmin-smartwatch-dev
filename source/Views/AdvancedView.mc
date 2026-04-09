@@ -20,7 +20,7 @@ class AdvancedView extends WatchUi.View {
     const COLOR_TEXT_MUTED = 0x969696;
     const COLOR_CHART_BORDER = 0x969696;
 
-    private var _simulationTimer;
+    private var _simulationTimer = null;
     
     // Vibration alert tracking (no extra timers needed!)
     private var _lastZoneState = 0; // -1 = below, 0 = inside, 1 = above
@@ -35,19 +35,34 @@ class AdvancedView extends WatchUi.View {
         View.initialize();
     }
 
-    function onShow() as Void {
-        _simulationTimer = new Timer.Timer();
-        _simulationTimer.start(method(:refreshScreen), 1000, true);
-    }
+private function startRefreshTimer() as Void {
+    // Stop old timer first, just in case
+    stopRefreshTimer();
 
-    function onHide() as Void {
-        if (_simulationTimer != null) {
-            _simulationTimer.stop();
-            _simulationTimer = null;
-        }
-        // Reset alert state
+    _simulationTimer = new Timer.Timer();
+    _simulationTimer.start(method(:refreshScreen), 1000, true);
+    System.println("[TIMER] AdvancedView refresh timer started");
+}
+
+private function stopRefreshTimer() as Void {
+    if (_simulationTimer != null) {
+        _simulationTimer.stop();
+        _simulationTimer = null;
+        System.println("[TIMER] AdvancedView refresh timer stopped");
+    }
+}
+
+function onShow() as Void {
+    startRefreshTimer();
+}
+
+function onHide() as Void {
+        stopRefreshTimer();
+
         _alertStartTime = null;
         _lastAlertTime = 0;
+        _pendingSecondVibe = false;
+        _secondVibeTime = 0;
     }
 
     function onUpdate(dc as Dc) as Void {
