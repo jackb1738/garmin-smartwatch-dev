@@ -1,31 +1,47 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.System;
+import Toybox.Graphics;
+
 
 class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
 
     private var _currentView = null;
     private var _initTime = null;
     private var _menuActive = false;
+    private var _lastUpClickTime = 0;
+    private var _upPressStartTime = 0;
+    private var _doubleClickThreshold = 600;
+    private var _longPressThreshold = 800;
+    private var _isVibrationOn = false;
+   
+    
 
     function initialize() {
         BehaviorDelegate.initialize();
-        _initTime = System.getTimer();
+        _initTime = getTimeMs();
     }
+    
 
-    function onMenu() as Boolean {
+     function onMenu() as Boolean {
         pushSettingsView();
+
+        // ✅ FULL RESET
+        _lastUpClickTime = 0;
+        _upPressStartTime = 0;
         return true;
-    }
+     }
+    
 
     function onSelect() as Boolean {
         System.println("[DEBUG] onSelect called, menuActive=" + _menuActive);
         
-        if (_initTime != null && (System.getTimer() - _initTime) < 1000) {
+        if (_initTime != null && (getTimeMs() - _initTime) < 1000) {
             System.println("[DEBUG] Ignoring onSelect during initialization");
             return false;
         }
         
+
         if (_menuActive) {
             System.println("[DEBUG] Menu active, letting menu delegate handle it");
             return false;
@@ -33,6 +49,10 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
         
         System.println("[DEBUG] Handling START/STOP button press");
         return handleStartStopButton();
+    }
+
+      function getTimeMs() as Number {
+    return System.getTimer();
     }
 
     function handleStartStopButton() as Boolean {
@@ -57,26 +77,74 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
         }
         return true;
     }
+    
+function onKeyPressed(keyEvent as KeyEvent) as Boolean {
+    var key = keyEvent.getKey();
 
-    function onKey(keyEvent as WatchUi.KeyEvent) as Boolean {
-        var key = keyEvent.getKey();
-
-        if (key == WatchUi.KEY_DOWN) {
+    if (key == WatchUi.KEY_UP) {
+        // Start stopwatch for long press detection
+        _upPressStartTime = getTimeMs();
+        return true;
+    }
+    else if (key == WatchUi.KEY_DOWN) {
+        //down button > go to advanced view
             _currentView = new AdvancedView();
             WatchUi.pushView(
                 _currentView,
                 new AdvancedViewDelegate(_currentView),
                 WatchUi.SLIDE_DOWN
             );
-            return true;
-        }
+        return true;
+    }
 
-        if (key == WatchUi.KEY_UP) {
+    return false;
+}
+
+function onKeyReleased(keyEvent as KeyEvent) as Boolean {
+    var key = keyEvent.getKey();
+    var currentTime = getTimeMs();
+
+    if (key == WatchUi.KEY_UP) {
+        var pressDuration = currentTime - _upPressStartTime;
+
+        // Check for long press
+        if (pressDuration >= _longPressThreshold) {
+            System.println("[DEBUG] Long press detected");
             pushSettingsView();
+            _lastUpClickTime = 0; // Reset double click timer
             return true;
         }
 
-        return false;
+        // Check for double click
+        if (_lastUpClickTime != 0 && (currentTime - _lastUpClickTime) < _doubleClickThreshold) {
+            System.println("[DEBUG] Double click detected");
+            toggleVibration();
+            _lastUpClickTime = 0; // Reset double click timer
+            return true;
+        }
+
+        // Otherwise, treat as single click and start waiting for potential double click
+        _lastUpClickTime = currentTime;
+        return true;
+    }
+
+    return false;
+}
+
+
+    function toggleVibration() as Void {
+
+        _isVibrationOn = !_isVibrationOn;
+
+        var status = _isVibrationOn ? "Vibration ON" : "Vibration OFF";
+
+        System.println("[UI] " + status);
+
+        // 👉 OPEN NEW VIEW
+        WatchUi.pushView(
+        new VibrationView(status),
+        new WatchUi.BehaviorDelegate(),
+        WatchUi.SLIDE_UP );
     }
 
     function onSwipe(event as WatchUi.SwipeEvent) as Boolean {
@@ -92,13 +160,9 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
 
-        if (direction == WatchUi.SWIPE_LEFT) {
-            pushSettingsView();
-            return true;
-        }
-
         return false;
     }
+
 
     function showActivityControlMenu() as Void {
         var menu = new WatchUi.Menu2({ :title => "Activity" });
@@ -126,7 +190,6 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function pushSettingsView() as Void {
-
         WatchUi.switchToView(new SettingsView(), new SettingsMenuDelegate(), WatchUi.SLIDE_UP);
     }
 
@@ -137,15 +200,22 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
 
     function onBack() as Boolean {
         var app = getApp();
-        
+
         if (app.isRecording() || app.isPaused() || app.isStopped()) {
             System.println("[UI] Session active - use Stop to exit");
             return true;
         }
-        
-        return false;
+
+        //  FULL RESET (THIS FIXES EVERYTHING)
+        WatchUi.switchToView(
+            new SimpleView(),
+            new SimpleViewDelegate(),
+            WatchUi.SLIDE_IMMEDIATE
+        );
+
+        return true;
     }
-}
+ }
 
 class ActivityControlMenuDelegate extends WatchUi.Menu2InputDelegate {
     
