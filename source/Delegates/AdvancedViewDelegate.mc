@@ -2,81 +2,95 @@ import Toybox.Lang;
 import Toybox.System;
 import Toybox.WatchUi;
 import Toybox.Application;
-import Toybox.Timer;
 
 class AdvancedViewDelegate extends WatchUi.BehaviorDelegate { 
 
-
-    private var _lastUpPressTime = 0;
-    private var _upPressTimer as Timer.Timer?;
-    const DOUBLE_PRESS_WINDOW = 500;
+    private var _upPressStartTime = 0;
+    private var _lastUpReleaseTime = 0;
+    private var _doubleClickThreshold = 600;
+    private var _longPressThreshold = 800;
 
     function initialize(view as AdvancedView) {
         BehaviorDelegate.initialize();
     }
 
+    function getTimeMs() as Number {
+        return System.getTimer();
+    }
+
     function onMenu() as Boolean {
         // Open settings menu from advanced view long press UP
         pushSettingsView();
-        
+        _lastUpReleaseTime = 0; 
         return true;
     }
 
-  function onKey(keyEvent as WatchUi.KeyEvent) as Boolean {
-    var key = keyEvent.getKey();
-    System.println("[AdvancedViewDelegate] Key pressed: " + key.toString());
+    function onKeyPressed(keyEvent as WatchUi.KeyEvent) as Boolean {
+        var key = keyEvent.getKey();
 
-        // Scroll down to SimpleView (completing the loop)
-        if(key == WatchUi.KEY_DOWN) {
-            pushSimpleView();
-            return true;
-        }
-        // UP button - Back to SimpleView
-        else if (key == WatchUi.KEY_UP) {
-            pushSimpleView();
+        if (key == WatchUi.KEY_UP) {
+            _upPressStartTime = getTimeMs();
             return true;
         }
 
-    if (key == WatchUi.KEY_UP) {
-    var currentTime = System.getTimer();
-    System.println("[AdvancedViewDelegate] UP pressed");
+        return false;
+    }
 
-    if (currentTime - _lastUpPressTime < DOUBLE_PRESS_WINDOW) {
+    function onKeyReleased(keyEvent as WatchUi.KeyEvent) as Boolean {
+        var key = keyEvent.getKey();
+        var currentTime = getTimeMs();
+
+        if (key == WatchUi.KEY_UP) {
+            var pressDuration = currentTime - _upPressStartTime;
+
+            // 1. IS IT A LONG PRESS?
+            if (pressDuration >= _longPressThreshold) {
+                System.println("[AdvancedView] Long press UP -> Settings");
+                pushSettingsView();
+                _lastUpReleaseTime = 0; 
+                return true;
+            }
+
+            // 2. IS IT A DOUBLE CLICK?
+            if (_lastUpReleaseTime != 0 && (currentTime - _lastUpReleaseTime) < _doubleClickThreshold) {
+                System.println("[AdvancedView] Double click UP -> Vibration Toggle");
+                toggleVibration();
+                _lastUpReleaseTime = 0; 
+                return true;
+            }
+
+            // 3. IT IS A SINGLE CLICK (Wait for double, or let them swipe/press down to leave)
+            System.println("[AdvancedView] Single click UP -> Waiting for double...");
+            _lastUpReleaseTime = currentTime;
+            return true;
+        }
+
+        // HANDLE DOWN BUTTON (Single click to go back to SimpleView)
+        if (key == WatchUi.KEY_DOWN) {
+            pushSimpleView();
+            return true;
+        }
+
+        return false;
+    }
+
+    function toggleVibration() as Void {
         var app = Application.getApp() as GarminApp;
+        
         var enabled = app.getVibrationEnabled();
-        app.setVibrationEnabled(!enabled);
+        var newEnabled = !enabled;
+        
+        app.setVibrationEnabled(newEnabled);
 
-        System.println("[HAPTIC] Vibration toggled: " + (!enabled).toString());
+        System.println("[AdvancedView] Vibration toggled: " + newEnabled.toString());
 
-        _lastUpPressTime = 0;
-        return true;
+        // Push the VibrationView using the boolean (since your initialize expects true/false)
+        WatchUi.pushView(
+            new VibrationView(newEnabled),
+            new WatchUi.BehaviorDelegate(), // basic delegate so it can auto-close or be backed out of
+            WatchUi.SLIDE_IMMEDIATE
+        );
     }
-
-    _lastUpPressTime = currentTime;
-    return true;
-}
-
-    return false;
-}
-
-function handleSingleUpPress() as Void {
-    _lastUpPressTime = 0;
-
-    WatchUi.switchToView(
-        new SimpleView(),
-        new SimpleViewDelegate(),
-        WatchUi.SLIDE_UP
-    );
-}
-
-function showVibrationStatus(enabled as Boolean) as Void {
-    WatchUi.pushView(
-        new VibrationView(enabled),
-        new TimeViewDelegate(),
-        WatchUi.SLIDE_IMMEDIATE
-    );
-}
-
 
     function onSwipe(swipeEvent as WatchUi.SwipeEvent) as Boolean {
         var direction = swipeEvent.getDirection();
@@ -84,7 +98,7 @@ function showVibrationStatus(enabled as Boolean) as Void {
         // Swipe DOWN - Back to SimpleView
         if (direction == WatchUi.SWIPE_DOWN) {
             System.println("[UI] Swiped down to SimpleView");
-            WatchUi.popView(WatchUi.SLIDE_UP);
+            pushSimpleView();
             return true;
         }
 
@@ -98,7 +112,6 @@ function showVibrationStatus(enabled as Boolean) as Void {
     }
 
     function onBack() as Boolean {
-        // return to simple view
         pushSimpleView();
         return true;
     }
@@ -109,48 +122,5 @@ function showVibrationStatus(enabled as Boolean) as Void {
 
     function pushSimpleView() as Void {
         WatchUi.switchToView(new SimpleView(), new SimpleViewDelegate(), WatchUi.SLIDE_UP);
-    }
-
-    function onPreviousPage() as Boolean {
-    var currentTime = System.getTimer();
-    System.println("[AdvancedViewDelegate] UP pressed via onPreviousPage");
-
-    if (_lastUpPressTime != 0 && (currentTime - _lastUpPressTime) < DOUBLE_PRESS_WINDOW) {
-        if (_upPressTimer != null) {
-            _upPressTimer.stop();
-            _upPressTimer = null;
-        }
-
-        var app = Application.getApp() as GarminApp;
-        var enabled = app.getVibrationEnabled();
-        var newEnabled = !enabled;
-        app.setVibrationEnabled(newEnabled);
-
-        System.println("[AdvancedViewDelegate] Vibration toggled: " + newEnabled.toString());
-
-        _lastUpPressTime = 0;
-        showVibrationStatus(newEnabled);
-        return true;
-    }
-
-    _lastUpPressTime = currentTime;
-
-    if (_upPressTimer != null) {
-        _upPressTimer.stop();
-    }
-
-    _upPressTimer = new Timer.Timer();
-    _upPressTimer.start(method(:handleSingleUpPress), DOUBLE_PRESS_WINDOW, false);
-
-    return true;
-}
-
-    function onNextPage() as Boolean {
-        WatchUi.switchToView(
-            new SimpleView(),
-            new SimpleViewDelegate(),
-            WatchUi.SLIDE_DOWN
-        );
-        return true;
     }
 }

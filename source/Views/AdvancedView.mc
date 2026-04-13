@@ -138,6 +138,9 @@ function refreshScreen() as Void {
 }
     
     function checkAndTriggerAlerts() as Void {
+        var app = Application.getApp();
+        var isVibrationOn = app.getVibrationEnabled();
+
         // Only check if we're in an alert period
         if (_alertStartTime == null) {
             return;
@@ -158,11 +161,14 @@ function refreshScreen() as Void {
         if (timeSinceLastAlert >= _alertInterval) {
             _lastAlertTime = currentTime;
             
-            // Trigger the appropriate vibration
-            if (_lastZoneState == -1) {
-                triggerSingleVibration();
-            } else if (_lastZoneState == 1) {
-                triggerDoubleVibration();
+            //if vibrations are enabled.
+            if (isVibrationOn){
+                // Trigger the appropriate vibration
+                if (_lastZoneState == -1) {
+                    triggerSingleVibration();
+                } else if (_lastZoneState == 1) {
+                    triggerDoubleVibration();
+                }
             }
         }
     }
