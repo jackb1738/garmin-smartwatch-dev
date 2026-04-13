@@ -16,6 +16,7 @@ class SimpleView extends WatchUi.View {
     private var _cadenceZoneDisplay;
     private var _lastZoneState = 0; // -1 = below, 0 = inside, 1 = above
     private var _cqDisplay;
+    
     //private var _hardcoreDisplay;
     
     // Vibration alert tracking (no extra timers needed!)
@@ -26,10 +27,11 @@ class SimpleView extends WatchUi.View {
     private var _pendingSecondVibe = false;
     private var _secondVibeTime = 0;
 
-    function initialize() {
-        View.initialize();
-    }
 
+    function initialize() {
+    WatchUi.View.initialize();
+    }
+    
     // Called when this View is brought to the foreground. Restore
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
@@ -48,9 +50,10 @@ class SimpleView extends WatchUi.View {
         
         // Draw recording indicator
         drawRecordingIndicator(dc);
-        
-        // Call the parent onUpdate function to redraw the layout
-        View.onUpdate(dc);
+
+         // Call the parent onUpdate function to redraw the layout
+        View.onUpdate(dc); 
+    
     }
 
     // Called when this View is removed from the screen. Save the
@@ -65,6 +68,7 @@ class SimpleView extends WatchUi.View {
         _alertStartTime = null;
         _lastAlertTime = 0;
     }
+    
 
     function refreshScreen() as Void{
         WatchUi.requestUpdate();

@@ -16,19 +16,8 @@ class AdvancedViewDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onMenu() as Boolean {
-        // Create programmatic Menu2 instead of XML-based menu
-        var app = Application.getApp() as GarminApp;
-        var minCadence = app.getMinCadence();
-        var maxCadence = app.getMaxCadence();
-        
-        var menu = new WatchUi.Menu2({
-            :title => Lang.format("Cadence: $1$ - $2$", [minCadence, maxCadence])
-        });
-        
-        menu.addItem(new WatchUi.MenuItem("Set Min Cadence", null, :item_set_min, null));
-        menu.addItem(new WatchUi.MenuItem("Set Max Cadence", null, :item_set_max, null));
-        
-        WatchUi.pushView(menu, new SelectCadenceDelegate(menu), WatchUi.SLIDE_BLINK);
+        // Open settings menu from advanced view long press UP
+        pushSettingsView();
         
         return true;
     }
@@ -37,14 +26,16 @@ class AdvancedViewDelegate extends WatchUi.BehaviorDelegate {
     var key = keyEvent.getKey();
     System.println("[AdvancedViewDelegate] Key pressed: " + key.toString());
 
-    if (key == WatchUi.KEY_DOWN) {
-        WatchUi.switchToView(
-            new SimpleView(),
-            new SimpleViewDelegate(),
-            WatchUi.SLIDE_DOWN
-        );
-        return true;
-    }
+        // Scroll down to SimpleView (completing the loop)
+        if(key == WatchUi.KEY_DOWN) {
+            pushSimpleView();
+            return true;
+        }
+        // UP button - Back to SimpleView
+        else if (key == WatchUi.KEY_UP) {
+            pushSimpleView();
+            return true;
+        }
 
     if (key == WatchUi.KEY_UP) {
     var currentTime = System.getTimer();
@@ -107,18 +98,17 @@ function showVibrationStatus(enabled as Boolean) as Void {
     }
 
     function onBack() as Boolean {
-        // Back button disabled - no input
+        // return to simple view
+        pushSimpleView();
         return true;
     }
 
     function pushSettingsView() as Void {
-        var settingsMenu = new WatchUi.Menu2({ :title => "Settings" });
-        settingsMenu.addItem(new WatchUi.MenuItem("Profile", null, :set_profile, null));
-        settingsMenu.addItem(new WatchUi.MenuItem("Customization", null, :cust_options, null));
-        settingsMenu.addItem(new WatchUi.MenuItem("Feedback", null, :feedback_options, null));
-        settingsMenu.addItem(new WatchUi.MenuItem("Cadence Range", null, :cadence_range, null));
+        WatchUi.switchToView(new SettingsView(), new SettingsMenuDelegate(), WatchUi.SLIDE_UP);
+    }
 
-        WatchUi.pushView(settingsMenu, new SettingsMenuDelegate(), WatchUi.SLIDE_UP);
+    function pushSimpleView() as Void {
+        WatchUi.switchToView(new SimpleView(), new SimpleViewDelegate(), WatchUi.SLIDE_UP);
     }
 
     function onPreviousPage() as Boolean {

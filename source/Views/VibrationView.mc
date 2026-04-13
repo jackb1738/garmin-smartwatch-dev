@@ -1,5 +1,6 @@
 import Toybox.WatchUi;
 import Toybox.Graphics;
+import Toybox.System;
 import Toybox.Timer;
 
 class VibrationView extends WatchUi.View {
