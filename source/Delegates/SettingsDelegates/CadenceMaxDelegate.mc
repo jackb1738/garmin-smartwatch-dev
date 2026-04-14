@@ -14,11 +14,13 @@ class CadenceMaxDelegate extends WatchUi.BehaviorDelegate {
         var app = Application.getApp() as GarminApp;
         _max = app.getMaxCadence();
     }
+
     // BACK → go back to CadenceMinView
     function onBack() as Boolean {
         System.println("[SETTINGS] CadenceMax: Back - returning to CadenceMinView");
         WatchUi.switchToView(
             new CadenceMinView(),
+            new CadenceMinDelegate(),
             WatchUi.SLIDE_DOWN
         );
         return true;
