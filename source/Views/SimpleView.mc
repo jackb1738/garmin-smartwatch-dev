@@ -16,7 +16,7 @@ class SimpleView extends WatchUi.View {
     private var _cadenceZoneDisplay;
     private var _lastZoneState = 0; // -1 = below, 0 = inside, 1 = above
     private var _cqDisplay;
-    
+    private var _paceDisplay; 
     //private var _hardcoreDisplay;
     
     // Vibration alert tracking (no extra timers needed!)
@@ -53,6 +53,9 @@ class SimpleView extends WatchUi.View {
 
          // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc); 
+
+        //Draw dividing lines
+        drawDividers(dc);
     
     }
 
@@ -237,9 +240,9 @@ class SimpleView extends WatchUi.View {
         // Display distance in kilometers with 2 decimal places
         if (info != null && info.elapsedDistance != null){
             var distanceKm = info.elapsedDistance / 100000.0; // Convert centimeters to kilometers
-            _distanceDisplay.setText(distanceKm.format("%.2f") + " km");
+            _distanceDisplay.setText(distanceKm.format("%.2f") + " KM");
         }else{
-            _distanceDisplay.setText("-- km");
+            _distanceDisplay.setText("-- KM");
         }
 
         // Display elapsed time in HH:MM:SS format
@@ -264,14 +267,43 @@ class SimpleView extends WatchUi.View {
                 var cq = app.computeCadenceQualityScore();
 
                 if (cq < 0) {
-                    _cqDisplay.setText("CQ: --");
+                    _cqDisplay.setText("CQ: --%");
                 } else {
                     _cqDisplay.setText("CQ: " + cq.format("%d") + "%");
                 }
             }
         }
 
+        // --- Pace Display ---
+        if (info != null && info.currentSpeed != null) {
+            if (info.currentSpeed > 0) {
+                var paceSecPerKm = (1000.0 / info.currentSpeed).toNumber();
+                var paceMin = paceSecPerKm / 60;
+                var paceSec = paceSecPerKm % 60;
+                _paceDisplay.setText(paceMin.format("%d") + ":" + paceSec.format("%02d"));
+            } else {
+                _paceDisplay.setText("--:--");
+        }
+        } else {
+            _paceDisplay.setText("--:--");
+        }
         
+    }
+    
+    // Draw horizontal dividers to separate sections of the display
+    function drawDividers(dc as Dc) as Void {
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+    
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        // Line under time
+        dc.drawLine(20, height * 0.22, width - 20, height * 0.22);
+        // Line under SPM/cadence
+        dc.drawLine(20, height * 0.43, width - 20, height * 0.43);
+        // Line under CQ/distance row
+        dc.drawLine(20, height * 0.60, width - 20, height * 0.60);
+        // Line under HR/pace row
+        dc.drawLine(20, height * 0.78, width - 20, height * 0.78);
     }
 
     // Load your resources here
@@ -283,7 +315,14 @@ class SimpleView extends WatchUi.View {
         _distanceDisplay = findDrawableById("distance_text");
         _timeDisplay = findDrawableById("time_text");
         _cqDisplay = findDrawableById("cq_text");
+        _paceDisplay = findDrawableById("pace_text"); 
         //_hardcoreDisplay = findDrawableById("hardcore_text");
+        
+        var _spmLabel = findDrawableById("spm_label") as WatchUi.Text;
+            if (_spmLabel != null) {
+            _spmLabel.setText("SPM");
+            }
+        
     }
 
 }
