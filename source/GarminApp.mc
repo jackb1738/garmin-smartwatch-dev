@@ -22,6 +22,7 @@ class GarminApp extends Application.AppBase {
     const PROP_CHART_DURATION = "chartDuration";
     const PROP_MIN_CADENCE = "minCadence";
     const PROP_MAX_CADENCE = "maxCadence";
+    const PROP_VIBRATION_ENABLED = "vibrationEnabled";
 
     var globalTimer;
     var activitySession; // Garmin activity recording session
@@ -66,6 +67,7 @@ class GarminApp extends Application.AppBase {
     private var _experienceLvl = Beginner;
     private var _userGender = Male;
     private var _chartDuration = ThirtyminChart as Number;
+    private var _vibrationEnabled = true;
 
     private var _idealMinCadence = 120;
     private var _idealMaxCadence = 150;
@@ -635,6 +637,13 @@ class GarminApp extends Application.AppBase {
         return _idealMinCadence;
     }
     
+        function getVibrationEnabled() as Boolean {
+        return _vibrationEnabled;
+    }
+
+    function setVibrationEnabled(enabled as Boolean) as Void {
+        _vibrationEnabled = enabled;
+    }
     function getMaxCadence() as Number {
         return _idealMaxCadence;    
     }

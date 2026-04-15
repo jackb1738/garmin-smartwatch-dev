@@ -5,48 +5,43 @@ import Toybox.Timer;
 
 class VibrationView extends WatchUi.View {
 
-    private var _text;
-    private var _timer;
+    private var _enabled;
+    private var _closeTimer;
 
-    function initialize(text) {
-    WatchUi.View.initialize();
-    _text = text;
+    function initialize(enabled) {
+        View.initialize();
+        _enabled = enabled;
     }
 
     function onShow() as Void {
-        _timer = new Timer.Timer();
-
-        // Auto close after 2 seconds
-        _timer.start(method(:closeView), 2000, false);
-    }
-
-    function onUpdate(dc as Dc) as Void {
-
-        var w = dc.getWidth();
-        var h = dc.getHeight();
-
-        // Background
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.fillRectangle(0, 0, w, h);
-
-        // Text
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
-        dc.drawText(
-            w/2,
-            h/2,
-            Graphics.FONT_LARGE,
-            _text,
-            Graphics.TEXT_JUSTIFY_CENTER
-        );
-    }
-
-    function closeView() as Void {
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+        _closeTimer = new Timer.Timer();
+        _closeTimer.start(method(:closeMessage), 1200, false); // 1.2 seconds
     }
 
     function onHide() as Void {
-        if (_timer != null) {
-            _timer.stop();
+        if (_closeTimer != null) {
+            _closeTimer.stop();
+            _closeTimer = null;
         }
+    }
+
+    function closeMessage() as Void {
+        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+    }
+
+    function onUpdate(dc as Dc) as Void {
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+
+        var text = _enabled ? "Vibration ON" : "Vibration OFF";
+
+        dc.clear();
+        dc.drawText(
+            width / 2,
+            height / 2,
+            Graphics.FONT_LARGE,
+            text,
+            Graphics.TEXT_JUSTIFY_CENTER
+        );
     }
 }
