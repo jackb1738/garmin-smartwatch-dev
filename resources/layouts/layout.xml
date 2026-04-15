@@ -1,40 +1,47 @@
 <layouts>
 <layout id="MainLayout" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
-   <!-- Cadence Icon -->
-<bitmap id="cadence_icon" 
-    x="68.5%"
-    y="29%"
-    filename="../drawables/cadence_icon.png" />
+   <!-- Pace Icon -->
+<bitmap id="pace_icon" 
+    x="50%"
+    y="62%"
+    filename="../drawables/shoe_icon.png" />
 
 <!-- Cadence Text -->
 <label id="cadence_text" 
-    x="75%" 
-    y="42%" 
-    font="Gfx.FONT_LARGE"
+    x="35%" 
+    y="23%" 
+    font="Gfx.FONT_NUMBER_MILD"
     justification="Gfx.TEXT_JUSTIFY_CENTER"
-    color="Gfx.COLOR_GREEN" />
+    color="Gfx.COLOR_WHITE" />
 
+<!-- SPM Label -->
+<label id="spm_label"
+    x="65%"
+    y="30%"
+    font="Gfx.FONT_MEDIUM"
+    justification="Gfx.TEXT_JUSTIFY_CENTER"
+    color="Gfx.COLOR_BLUE" />
 
 
 <!-- Heart Rate Icon -->
 <bitmap id="heartrate_icon" 
-    x="19.5%" 
-    y="30%"
+    x="10%" 
+    y="63%"
     filename="../drawables/heart-rate.png" />
 
 <!-- Heart Rate Text -->
 <label id="heartrate_text"
-    x="25%"
-    y="42%"
-    font="Gfx.FONT_LARGE"
+    x="33%"
+    y="63%"
+    font="Gfx.FONT_SMALL"
     justification="Gfx.TEXT_JUSTIFY_CENTER"
     color="Gfx.COLOR_RED" />
 
 <!-- Distance -->
 <label id="distance_text"
-    x="center"
-    y="60%"
-    font="Gfx.FONT_MEDIUM"
+    x="75%"
+    y="46%"
+    font="Gfx.FONT_SMALL"
     justification="Gfx.TEXT_JUSTIFY_CENTER"
     color="Gfx.COLOR_PURPLE" />
 
@@ -48,19 +55,19 @@
 
 <!-- Cadence Quality (Easter Egg) -->
 <label id="cq_text"
-    x="center"
-    y="85%"
+    x="25%"
+    y="46%"
     font="Gfx.FONT_SMALL"
     justification="Gfx.TEXT_JUSTIFY_CENTER"
-    color="Gfx.COLOR_LT_GRAY" />
+    color="Gfx.COLOR_WHITE" />
 
-<!-- Pace -->
+<!-- Pace Text-->
 <label id="pace_text"
-    x="center"
-    y="70%"
-    font="Gfx.FONT_MEDIUM"
+    x="78%"
+    y="63%"
+    font="Gfx.FONT_SMALL"
     justification="Gfx.TEXT_JUSTIFY_CENTER"
-    color="Gfx.COLOR_BLUE" />
+    color="Gfx.COLOR_GREEN" />
 
 </layout>
 
