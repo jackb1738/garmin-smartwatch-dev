@@ -216,8 +216,9 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
         var app = getApp();
 
         if (app.isRecording() || app.isPaused() || app.isStopped()) {
-            System.println("[UI] Session active - use Stop to exit");
-            return true;
+            //System.println("[UI] Session active - use Stop to exit");
+           System.println("[UI] Finish or discard current session first");
+           return true;
         }
 
         // FULL RESET TO SIMPLE VIEW
@@ -266,6 +267,7 @@ class ActivityControlMenuDelegate extends WatchUi.Menu2InputDelegate {
             app.stopRecording();
             System.println("[UI] Activity stopped");
             WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+            _parentDelegate.setMenuActive(false);
             
             var menu = new WatchUi.Menu2({ :title => "Save Activity?" });
             menu.addItem(new WatchUi.MenuItem("Save", "Save session", :save_session, null));
