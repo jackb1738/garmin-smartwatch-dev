@@ -284,33 +284,66 @@ class GarminApp extends Application.AppBase {
     //     // resetSession();
     // }
 
-    function saveSession() as Void {
+    // function saveSession() as Void {
 
-    if (_sessionState != STOPPED) {
-        System.println("[INFO] Cannot save - session not stopped");
-        return;
-    }
+    // if (_sessionState != STOPPED) {
+    //     System.println("[INFO] Cannot save - session not stopped");
+    //     return;
+    // }
 
-    System.println("[INFO] Saving activity session");
+    // System.println("[INFO] Saving activity session");
     
-    if (activitySession != null) {
-        activitySession.save();
-        activitySession = null;
-    }
+    // if (activitySession != null) {
+    //     activitySession.save();
+    //     activitySession = null;
+    // }
 
-    // 🔥 STORE DATA HERE
-    if (_sessionStartTime != null) {
-        _sessionDuration = System.getTimer() - _sessionStartTime - _sessionPausedTime;
-    }
+    // // 🔥 STORE DATA HERE
+    // if (_sessionStartTime != null) {
+    //     _sessionDuration = System.getTimer() - _sessionStartTime - _sessionPausedTime;
+    // }
 
-    // Distance & HR already captured in captureActivityMetrics()
+    // // Distance & HR already captured in captureActivityMetrics()
 
-    System.println("[SAVE] Duration stored: " + _sessionDuration);
-    System.println("[SAVE] Distance stored: " + _sessionDistance);
+    // System.println("[SAVE] Duration stored: " + _sessionDuration);
+    // System.println("[SAVE] Distance stored: " + _sessionDistance);
 
-    // ❌ REMOVE RESET HERE
-    // resetSession();
-    }
+    // // ❌ REMOVE RESET HERE
+    // // resetSession();
+    // }
+
+        function saveSession() as Void {
+
+            if (_sessionState != STOPPED) {
+                System.println("[INFO] Cannot save - session not stopped");
+                return;
+            }
+
+            System.println("[INFO] Saving activity session");
+            
+            if (activitySession != null) {
+                activitySession.save();
+                activitySession = null;
+            }
+
+            // // STORE DATA
+            // if (_sessionStartTime != null) {
+            //     _sessionDuration = System.getTimer() - _sessionStartTime - _sessionPausedTime;
+            // }
+            if (_sessionDuration == null) {
+            System.println("[WARN] No duration captured");
+            }
+
+            System.println("[SAVE] Duration stored: " + _sessionDuration);
+            System.println("[SAVE] Distance stored: " + _sessionDistance);
+
+           
+           // resetSession();
+
+            System.println("[INFO] Ready for summary view");
+        }
+
+
 
     function discardSession() as Void {
         if (_sessionState != STOPPED) {
@@ -346,6 +379,8 @@ class GarminApp extends Application.AppBase {
         _sessionStartTime = null;
         _sessionPausedTime = 0;
         _lastPauseTime = null;
+        _sessionDuration = null;
+        _sessionDistance = null;
         
         for (var i = 0; i < MAX_BARS; i++) {
             _cadenceHistory[i] = null;
