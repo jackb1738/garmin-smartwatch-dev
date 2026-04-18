@@ -62,15 +62,15 @@ class GarminApp extends Application.AppBase {
         Other
     }
 
-    private var _userHeight = 170;
-    private var _userSpeed = 10;
-    private var _experienceLvl = Beginner;
-    private var _userGender = Male;
-    private var _chartDuration = ThirtyminChart as Number;
+    var _userHeight = 170;
+    var _userSpeed = 10.0;
+    var _experienceLvl = 1.00;
+    var _userGender = 0;
+    var _chartDuration = ThirtyminChart as Number;
     private var _vibrationEnabled = true;
 
-    private var _idealMinCadence = 120;
-    private var _idealMaxCadence = 150;
+    var _idealMinCadence = 120;
+    var _idealMaxCadence = 150;
 
     private var _cadenceHistory as Array<Float?> = new [MAX_BARS];
     private var _cadenceIndex = 0;
@@ -107,7 +107,7 @@ class GarminApp extends Application.AppBase {
         //Logger.logMemoryStats("Startup");
         
         // Load saved settings from persistent storage
-        //loadSettings();
+        loadSettings();
         
         globalTimer = new Timer.Timer();
         globalTimer.start(method(:updateCadenceBarAvg),1000,true);
@@ -128,6 +128,7 @@ class GarminApp extends Application.AppBase {
         }
         
         //Logger.logMemoryStats("Shutdown");
+        saveSettings();
     }
 
     function startRecording() as Void {
@@ -786,6 +787,39 @@ class GarminApp extends Application.AppBase {
     function getSessionDuration() {
     return _sessionDuration;
     }
+
+// --- SETTINGS MANAGEMENT ---
+
+    function saveSettings() {
+    var s = Application.Storage;
+    // Logic Guard for Cadence
+    if (_idealMaxCadence <= _idealMinCadence) { _idealMaxCadence = _idealMinCadence + 5; }
+
+    s.setValue("cad_min", _idealMinCadence);
+    s.setValue("cad_max", _idealMaxCadence);
+    s.setValue("u_height", _userHeight);
+    s.setValue("u_speed", _userSpeed);
+    s.setValue("u_exp", _experienceLvl);
+    s.setValue("u_gen", _userGender);
+    s.setValue("u_dur", _chartDuration);
+    
+    System.println("--- DISK SYNC COMPLETE ---");
+}
+
+function loadSettings() {
+    var s = Application.Storage;
+    var val;
+
+    val = s.getValue("cad_min"); if (val != null) { _idealMinCadence = val; }
+    val = s.getValue("cad_max"); if (val != null) { _idealMaxCadence = val; }
+    val = s.getValue("u_height"); if (val != null) { _userHeight = val; }
+    val = s.getValue("u_speed"); if (val != null) { _userSpeed = val; }
+    val = s.getValue("u_exp"); if (val != null) { _experienceLvl = val; }
+    val = s.getValue("u_gen"); if (val != null) { _userGender = val; }
+    val = s.getValue("u_dur"); if (val != null) {_chartDuration = val; }
+
+    System.println("[LOADED] G:" + _userGender + " | S:" + _userSpeed + " | E:" + _experienceLvl );
+}
 
 
     // function getSessionDuration() as Number {
