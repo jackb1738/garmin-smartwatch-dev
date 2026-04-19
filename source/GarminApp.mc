@@ -36,12 +36,12 @@ class GarminApp extends Application.AppBase {
     
     private var _sessionState as SessionState = IDLE;
     
-    enum {
-        FifteenminChart = 3,
-        ThirtyminChart = 6, 
-        OneHourChart = 13,
-        TwoHourChart = 26
-    }
+   enum {
+    FifteenminChart = 5,    // was 3
+    ThirtyminChart = 10,    // was 6 
+    OneHourChart = 20,      // was 13
+    TwoHourChart = 40       // was 26
+}
 
     const CHART_ENUM_NAMES = {
         FifteenminChart => "15 Minutes",
