@@ -290,11 +290,11 @@ function refreshScreen() as Void {
         dc.drawText(width / 2, cadenceRangeY, Graphics.FONT_XTINY, zoneText, Graphics.TEXT_JUSTIFY_CENTER);
 
         drawChart(dc);
+    var string  = app.getChartDuration();
 
-        var string  = app.getChartDuration();
+    dc.setColor(0x969696, Graphics.COLOR_TRANSPARENT);
+    dc.drawText(width / 2, chartDurationY, Graphics.FONT_XTINY, "Last " + string, Graphics.TEXT_JUSTIFY_CENTER);
 
-        dc.setColor(0x969696, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, chartDurationY, Graphics.FONT_XTINY, "Last " + string, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
 
