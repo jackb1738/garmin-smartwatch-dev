@@ -706,20 +706,46 @@ class GarminApp extends Application.AppBase {
         return _cadenceCount;
     }
 
-    function setChartDuration(value as Number) as Void {
+ function setChartDuration(value as Number) as Void {
     _chartDuration = value;
 
-    // Reset rolling average buffer to match new duration
+    // reset averaging buffer
     _cadenceBarAvg = new [_chartDuration];
     _cadenceAvgIndex = 0;
     _cadenceAvgCount = 0;
 
-    System.println(CHART_ENUM_NAMES[_chartDuration] + " selected.");
+    // reset visible chart history too
+    _cadenceHistory = new [MAX_BARS];
+    _cadenceIndex = 0;
+    _cadenceCount = 0;
+
+    saveSettings();
+
+    System.println("Chart changed to: " + getChartDuration());
+    System.println("Bar count set to: " + _chartDuration.toString());
 }
     
-    function getChartDuration() as String{
-        return CHART_ENUM_NAMES[_chartDuration];
+   function getChartDuration() as String {
+    if (_chartDuration == 5) {
+        return "15 min";
+    } else if (_chartDuration == 10) {
+        return "30 min";
+    } else if (_chartDuration == 20) {
+        return "1 hour";
+    } else if (_chartDuration == 40) {
+        return "2 hours";
+    } else if (_chartDuration == 3) {
+        return "15 min";
+    } else if (_chartDuration == 6) {
+        return "30 min";
+    } else if (_chartDuration == 13) {
+        return "1 hour";
+    } else if (_chartDuration == 26) {
+        return "2 hours";
     }
+
+    return "Unknown";
+}
     
     function getUserGender() as String {
         return _userGender;
@@ -816,7 +842,24 @@ function loadSettings() {
     val = s.getValue("u_speed"); if (val != null) { _userSpeed = val; }
     val = s.getValue("u_exp"); if (val != null) { _experienceLvl = val; }
     val = s.getValue("u_gen"); if (val != null) { _userGender = val; }
-    val = s.getValue("u_dur"); if (val != null) {_chartDuration = val; }
+val = s.getValue("u_dur");
+if (val != null) {
+    if (val == 3) {
+        _chartDuration = 5;
+    } else if (val == 6) {
+        _chartDuration = 10;
+    } else if (val == 13) {
+        _chartDuration = 20;
+    } else if (val == 26) {
+        _chartDuration = 40;
+    } else {
+        _chartDuration = val;
+    }
+}
+
+_cadenceBarAvg = new [_chartDuration];
+_cadenceAvgIndex = 0;
+_cadenceAvgCount = 0;
 
     System.println("[LOADED] G:" + _userGender + " | S:" + _userSpeed + " | E:" + _experienceLvl );
 }
