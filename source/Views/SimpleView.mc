@@ -211,15 +211,27 @@ class SimpleView extends WatchUi.View {
 
         if (newZoneState != _lastZoneState) {
             if (newZoneState == -1) {
-                // Below minimum - start alert cycle
+                // Below minimum - start alert cycle and show popup
                 _alertStartTime = System.getTimer();
                 _lastAlertTime = System.getTimer();
                 triggerSingleVibration();
+                var isVibOn = Application.getApp().getVibrationEnabled();
+                WatchUi.pushView(
+                    new CadenceAlertView("Increase Cadence", isVibOn),
+                    new CadenceAlertDelegate(),
+                    WatchUi.SLIDE_IMMEDIATE
+                );
             } else if (newZoneState == 1) {
-                // Above maximum - start alert cycle
+                // Above maximum - start alert cycle and show popup
                 _alertStartTime = System.getTimer();
                 _lastAlertTime = System.getTimer();
                 triggerDoubleVibration();
+                var isVibOn = Application.getApp().getVibrationEnabled();
+                WatchUi.pushView(
+                    new CadenceAlertView("Decrease Cadence", isVibOn),
+                    new CadenceAlertDelegate(),
+                    WatchUi.SLIDE_IMMEDIATE
+                );
             } else {
                 // Back in zone - stop alerts
                 _alertStartTime = null;
