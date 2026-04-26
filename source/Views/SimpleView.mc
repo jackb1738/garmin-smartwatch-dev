@@ -133,12 +133,25 @@ class SimpleView extends WatchUi.View {
         if (timeSinceLastAlert >= _alertInterval) {
             _lastAlertTime = currentTime;
 
-            //if vibrations are enabled.
-            if (isVibrationOn){
-                // Trigger the appropriate vibration
-                if (_lastZoneState == -1) {
+            // Trigger the appropriate vibration and popup menu
+            if (_lastZoneState == -1) {
+            // push the popup alert 
+                WatchUi.pushView(
+                    new CadenceAlertView("Increase Cadence", isVibrationOn),
+                    new CadenceAlertDelegate(),
+                    WatchUi.SLIDE_IMMEDIATE
+                );
+                // if vibrations is on, trigger the vibration for the alert
+                if (isVibrationOn){
                     triggerSingleVibration();
-                } else if (_lastZoneState == 1) {
+                }
+            } else if (_lastZoneState == 1) {
+                WatchUi.pushView(
+                    new CadenceAlertView("Increase Cadence", isVibrationOn),
+                    new CadenceAlertDelegate(),
+                    WatchUi.SLIDE_IMMEDIATE
+                );
+                if (isVibrationOn){
                     triggerDoubleVibration();
                 }
             }
@@ -211,12 +224,12 @@ class SimpleView extends WatchUi.View {
 
         if (newZoneState != _lastZoneState) {
             if (newZoneState == -1) {
-                // Below minimum - start alert cycle
+                // Below minimum - start alert cycle and show popup
                 _alertStartTime = System.getTimer();
                 _lastAlertTime = System.getTimer();
                 triggerSingleVibration();
             } else if (newZoneState == 1) {
-                // Above maximum - start alert cycle
+                // Above maximum - start alert cycle and show popup
                 _alertStartTime = System.getTimer();
                 _lastAlertTime = System.getTimer();
                 triggerDoubleVibration();
