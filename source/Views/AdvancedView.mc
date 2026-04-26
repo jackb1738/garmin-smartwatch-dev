@@ -161,12 +161,25 @@ function refreshScreen() as Void {
         if (timeSinceLastAlert >= _alertInterval) {
             _lastAlertTime = currentTime;
             
-            //if vibrations are enabled.
-            if (isVibrationOn){
-                // Trigger the appropriate vibration
-                if (_lastZoneState == -1) {
+            // Trigger the appropriate vibration and popup menu
+            if (_lastZoneState == -1) {
+            // push the popup alert 
+                WatchUi.pushView(
+                    new CadenceAlertView("Increase Cadence", isVibrationOn),
+                    new CadenceAlertDelegate(),
+                    WatchUi.SLIDE_IMMEDIATE
+                );
+                // if vibrations is on, trigger the vibration for the alert
+                if (isVibrationOn){
                     triggerSingleVibration();
-                } else if (_lastZoneState == 1) {
+                }
+            } else if (_lastZoneState == 1) {
+                WatchUi.pushView(
+                    new CadenceAlertView("Increase Cadence", isVibrationOn),
+                    new CadenceAlertDelegate(),
+                    WatchUi.SLIDE_IMMEDIATE
+                );
+                if (isVibrationOn){
                     triggerDoubleVibration();
                 }
             }

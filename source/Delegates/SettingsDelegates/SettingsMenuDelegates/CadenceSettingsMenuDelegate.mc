@@ -43,7 +43,7 @@ class CadenceSettingsMenuDelegate extends WatchUi.BehaviorDelegate {
         System.println("Up button pressed");
         
         // Push the profile settings view
-        WatchUi.pushView(new ProfileSettingsMenuView(), new ProfileSettingsMenuDelegate(), WatchUi.SLIDE_DOWN);
+        WatchUi.pushView(new SummarySettingsMenuView(), new SummarySettingsMenuDelegate(), WatchUi.SLIDE_DOWN);
         
         return true; 
     }
