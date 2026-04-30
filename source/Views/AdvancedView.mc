@@ -246,10 +246,10 @@ function refreshScreen() as Void {
             var seconds = info.timerTime / 1000;
             var hours = seconds / 3600;
             var minutes = (seconds % 3600) / 60;
-            //var secs = seconds % 60;
-            var timeStr = hours.format("%01d") + ":" + minutes.format("%02d"); //+ "." + secs.format("%02d");
+            var secs = seconds % 60;
+            var timeStr = hours.format("%01d") + ":" + minutes.format("%02d") + ":" + secs.format("%02d");
             dc.setColor(0xFFF813, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(width / 2, 3, Graphics.FONT_LARGE, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(width / 2, 3, Graphics.FONT_MEDIUM, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
         }
         
         // Draw heart rate circle (left, dark red RGB: 211,19,2519
@@ -273,11 +273,32 @@ function refreshScreen() as Void {
         dc.setColor(0x1D5E11, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(distX, distY, circleRadius);
         
-        if (info != null && info.elapsedDistance != null) {
-            var distanceKm = info.elapsedDistance / 100000.0;
-            dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT); // White RGB: 255,255,255
-            dc.drawText(distX, distY - 25, Graphics.FONT_TINY, distanceKm.format("%.2f"), Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(distX, distY + 8, Graphics.FONT_XTINY, "km", Graphics.TEXT_JUSTIFY_CENTER);
+        //if (info != null && info.elapsedDistance != null) {
+        //    var distanceKm = info.elapsedDistance / 100000.0;
+        //    dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT); // White RGB: 255,255,255
+        //    dc.drawText(distX, distY - 25, Graphics.FONT_TINY, distanceKm.format("%.2f"), Graphics.TEXT_JUSTIFY_CENTER);
+        //    dc.drawText(distX, distY + 8, Graphics.FONT_XTINY, "km", Graphics.TEXT_JUSTIFY_CENTER);
+        //}
+
+        if (info != null && info.currentSpeed != null && info.currentSpeed > 0) {
+            // 1. Calculate Pace
+            var paceSecPerKm = (1000.0 / info.currentSpeed).toNumber();
+            var paceMin = paceSecPerKm / 60;
+            var paceSec = paceSecPerKm % 60;
+            var paceStr = paceMin.format("%d") + ":" + paceSec.format("%02d");
+
+            dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
+
+            // 2. Draw the Pace Value (e.g., 7:00)
+            dc.drawText(distX, distY - 25, Graphics.FONT_TINY, paceStr, Graphics.TEXT_JUSTIFY_CENTER);
+
+            // 3. Draw the Unit Label
+            dc.drawText(distX, distY + 8, Graphics.FONT_XTINY, "/km", Graphics.TEXT_JUSTIFY_CENTER);
+        } else {
+            // Fallback if not moving or no GPS
+            dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(distX, distY - 25, Graphics.FONT_TINY, "--:--", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(distX, distY + 8, Graphics.FONT_XTINY, "/km", Graphics.TEXT_JUSTIFY_CENTER);
         }
 
         //draw ideal cadence range
