@@ -183,6 +183,7 @@ class SimpleViewDelegate extends WatchUi.BehaviorDelegate {
         menu.addItem(new WatchUi.MenuItem("Resume", "Continue", :resume_activity, null));
         menu.addItem(new WatchUi.MenuItem("Pause", "Pause activity", :pause_activity, null));
         menu.addItem(new WatchUi.MenuItem("Stop", "Stop activity", :stop_activity, null));
+        menu.addItem(new WatchUi.MenuItem("Focus Mode", "Toggle UI", :toggle_focus, null));
         
         WatchUi.pushView(menu, new ActivityControlMenuDelegate(self), WatchUi.SLIDE_UP);
     }
@@ -274,6 +275,14 @@ class ActivityControlMenuDelegate extends WatchUi.Menu2InputDelegate {
             menu.addItem(new WatchUi.MenuItem("Discard", "Discard session", :discard_session, null));
             WatchUi.pushView(menu, new SaveDiscardMenuDelegate(_parentDelegate), WatchUi.SLIDE_UP);
         }
+        else if (id == :toggle_focus) {
+    app.toggleFocusMode();
+    System.println("[UI] Focus Mode toggled");
+
+    _parentDelegate.setMenuActive(false);
+    WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+    WatchUi.requestUpdate();
+}
     }
 
     function onBack() as Void {

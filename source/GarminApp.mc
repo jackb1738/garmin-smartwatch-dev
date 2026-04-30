@@ -68,6 +68,7 @@ class GarminApp extends Application.AppBase {
     var _userGender = 0;
     var _chartDuration = ThirtyminChart as Number;
     private var _vibrationEnabled = true;
+    var _focusMode = false;
 
     var _idealMinCadence = 120;
     var _idealMaxCadence = 150;
@@ -813,7 +814,16 @@ class GarminApp extends Application.AppBase {
     function getSessionDuration() {
     return _sessionDuration;
     }
+   
 
+function toggleFocusMode() as Void {
+    _focusMode = !_focusMode;
+    System.println("[FOCUS MODE] " + (_focusMode ? "ON" : "OFF"));
+}
+
+function isFocusMode() as Boolean {
+    return _focusMode;
+}
 // --- SETTINGS MANAGEMENT ---
 
     function saveSettings() {

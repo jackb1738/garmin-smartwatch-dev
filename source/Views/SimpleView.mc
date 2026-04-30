@@ -5,6 +5,8 @@ import Toybox.Lang;
 import Toybox.Timer;
 import Toybox.System;
 import Toybox.Attention;
+import Toybox.Application;
+
 
 class SimpleView extends WatchUi.View {
 
@@ -39,25 +41,21 @@ class SimpleView extends WatchUi.View {
         _refreshTimer = new Timer.Timer();
         _refreshTimer.start(method(:refreshScreen), 1000, true);
     }
-
-    // Update the view
     function onUpdate(dc as Dc) as Void {
-        //update the display for current cadence
-        displayCadence();
-        
-        // Check for pending second vibration
-        checkPendingVibration();
-        
-        // Draw recording indicator
-        drawRecordingIndicator(dc);
 
-         // Call the parent onUpdate function to redraw the layout
-        View.onUpdate(dc); 
-
-        //Draw dividing lines
-        drawDividers(dc);
-    
+    if ((Application.getApp() as GarminApp).isFocusMode()) {
+        drawFocusMode(dc);
+        // drawRecordingIndicator(dc); 
+        return;
     }
+
+    displayCadence();
+    checkPendingVibration();
+    drawRecordingIndicator(dc);
+
+    View.onUpdate(dc);
+    drawDividers(dc);
+}
 
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from
@@ -337,5 +335,36 @@ class SimpleView extends WatchUi.View {
             }
         
     }
+    function drawFocusMode(dc as Dc) as Void {
+
+    var info = Activity.getActivityInfo();
+    var width = dc.getWidth();
+    var height = dc.getHeight();
+    
+
+    dc.clear();
+    dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+
+    var cadence = "165";
+    var hr = "145";
+
+    if (info != null) {
+        if (info.currentCadence != null) {
+            cadence = info.currentCadence.toString();
+        }
+        if (info.currentHeartRate != null) {
+            hr = info.currentHeartRate.toString();
+        }
+    }
+
+    // Title
+    dc.drawText(width / 2, 30, Graphics.FONT_TINY, "FOCUS MODE", Graphics.TEXT_JUSTIFY_CENTER);
+
+    // BIG cadence
+    dc.drawText(width / 2, height / 2 - 20, Graphics.FONT_NUMBER_HOT, cadence, Graphics.TEXT_JUSTIFY_CENTER);
+
+    // Heart rate
+    dc.drawText(width / 2, height - 50, Graphics.FONT_SMALL, hr + " bpm", Graphics.TEXT_JUSTIFY_CENTER);
+}
 
 }
