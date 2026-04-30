@@ -19,10 +19,8 @@ class BarChartSettingsMenuDelegate extends WatchUi.BehaviorDelegate {
 
     // Handles the SELECT/START button (or screen tap)
     function onSelect() as Boolean {
-        System.println("Select/Tap pressed: Opening bar chart settings");
-        
-        // Push the bar chart settings
-        pushBarChartMenu();
+        System.println("Select button pressed: Opening bar chart settings");
+        WatchUi.pushView(new BarChartSelectView(), new SelectBarChartDelegate(), WatchUi.SLIDE_LEFT);
         return true;
     }
 
@@ -47,17 +45,4 @@ class BarChartSettingsMenuDelegate extends WatchUi.BehaviorDelegate {
     }
 
 
-    function pushBarChartMenu() as Void {
-        var menu = new WatchUi.Menu2({
-            :title => "Bar Chart Length:"
-        });
-
-        menu.addItem(new WatchUi.MenuItem("15 Minute", null, :chart_15m, null));
-        menu.addItem(new WatchUi.MenuItem("30 Minute", null, :chart_30m, null));
-        menu.addItem(new WatchUi.MenuItem("1 Hour", null, :chart_1h, null));
-        menu.addItem(new WatchUi.MenuItem("2 Hour", null, :chart_2h, null));
-
-        //pushes the view to the screen with the relevent delegate
-        WatchUi.pushView(menu, new SelectBarChartDelegate(menu), WatchUi.SLIDE_LEFT);
-    }
 }
