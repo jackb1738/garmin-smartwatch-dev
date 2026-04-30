@@ -92,16 +92,16 @@ function onUpdate(dc as Dc) as Void {
 
     // Get average cadence
     var avgCadence = app.getAverageCadence();
-    var cadenceStr = avgCadence > 0 ? avgCadence.format("%.0f") : "--";
+    var cadenceStr = avgCadence > 0 ? avgCadence.format("%.0f") + " SPM" : "--";
 
     // Get CQ score
     var cqStr = app.getfinalQC();
 
     drawRow(dc, width, startY + gap, timeStr, _iconTime, "TIME");
-    drawRow(dc, width, startY + gap * 2, paceStr, _iconHR, "PACE");
+    drawRow(dc, width, startY + gap * 2, paceStr, _iconDistance, "PACE");
     drawRow(dc, width, startY + gap * 3, cadenceStr, _iconCadence, "CADENCE");
-    drawRow(dc, width, startY + gap * 4, cqStr, _iconSteps, "CQ");
-    drawRow(dc, width, startY + gap * 5, km.format("%.2f"), _iconDistance, "DISTANCE");
+    drawRow(dc, width, startY + gap * 4, cqStr + "%", _iconSteps, "QUALITY");
+    drawRow(dc, width, startY + gap * 5, km.format("%.2f") + " km", _iconDistance, "DISTANCE");
 
 
 }
@@ -110,11 +110,11 @@ function onUpdate(dc as Dc) as Void {
 // 🔥 UPDATED ROW (ALL TINY + MORE SPACING FRIENDLY)
 function drawRow(dc as Dc, width as Number, y as Number, value as String, icon as Graphics.BitmapType, label as String) as Void {
 
-    var leftMargin = 40;
+    var leftMargin = 25;
     var rightMargin = width - 40;
 
     // Drawing the icon: Subtracting 24 from Y pushes the top-left corner of the icon up, to center the icon in line with the text (icon is 50x50).
-    dc.drawBitmap(leftMargin, y - 24, icon);
+    dc.drawBitmap(leftMargin, y - 20, icon);
 
     // Drawing the label: We add VCENTER so the vertical middle of the text lines up exactly with our y coordinate.
     dc.drawText(leftMargin + 50, y, Graphics.FONT_XTINY, label, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
