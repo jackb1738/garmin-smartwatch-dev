@@ -274,17 +274,17 @@ class SimpleView extends WatchUi.View {
             var app = getApp();
             var frozenCQ = app.getFinalCadenceQuality();
 
-            if (frozenCQ != null) {
-                _cqDisplay.setText("CQ: " + frozenCQ.format("%d") + "%");
-            } else {
-                var cq = app.computeCadenceQualityScore();
-
-                if (cq < 0) {
-                    _cqDisplay.setText("CQ: --%");
-                } else {
-                    _cqDisplay.setText("CQ: " + cq.format("%d") + "%");
-                }
-            }
+            //if (frozenCQ != null) {
+            //    _cqDisplay.setText("CQ: " + frozenCQ.format("%d") + "%");
+            //} else {
+            //    var cq = app.computeCadenceQualityScore();
+//
+            //    if (cq < 0) {
+            //        _cqDisplay.setText("CQ: --%");
+            //    } else {
+            //        _cqDisplay.setText("CQ: " + cq.format("%d") + "%");
+            //    }
+            //}
         }
 
         // --- Pace Display ---
@@ -293,12 +293,12 @@ class SimpleView extends WatchUi.View {
                 var paceSecPerKm = (1000.0 / info.currentSpeed).toNumber();
                 var paceMin = paceSecPerKm / 60;
                 var paceSec = paceSecPerKm % 60;
-                _paceDisplay.setText(paceMin.format("%d") + ":" + paceSec.format("%02d"));
+                _paceDisplay.setText(paceMin.format("%d") + ":" + paceSec.format("%02d") + " min/km");
             } else {
-                _paceDisplay.setText("--:--");
+                _paceDisplay.setText("--:-- min/km");
         }
         } else {
-            _paceDisplay.setText("--:--");
+            _paceDisplay.setText("--:-- min/km");
         }
         
     }
