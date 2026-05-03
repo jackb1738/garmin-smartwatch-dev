@@ -11,4 +11,5 @@
     <bitmap id="CrossIcon" filename="Cross_Icon.png" />
     <bitmap id="RecIcon" filename="Rec_Icon.png" />
     <bitmap id="BarChartIcon" filename="bar_chart_icon.png"/>
+    <bitmap id="SettingsIcon" filename="settings_icon.png"/>
 </drawables>
