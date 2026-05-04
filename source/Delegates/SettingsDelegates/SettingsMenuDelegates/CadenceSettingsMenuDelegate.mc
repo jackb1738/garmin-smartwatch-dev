@@ -44,7 +44,8 @@ class CadenceSettingsMenuDelegate extends WatchUi.BehaviorDelegate {
         
         // Push the profile settings view
         WatchUi.pushView(new SummarySettingsMenuView(), new SummarySettingsMenuDelegate(), WatchUi.SLIDE_DOWN);
-        
+// Push the profile settings view
+        WatchUi.pushView(new ProfileSettingsMenuView(), new ProfileSettingsMenuDelegate(), WatchUi.SLIDE_DOWN);        
         return true; 
     }
 

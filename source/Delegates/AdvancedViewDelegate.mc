@@ -1,7 +1,6 @@
 import Toybox.Lang;
 import Toybox.System;
 import Toybox.WatchUi;
-import Toybox.Application;
 
 class AdvancedViewDelegate extends WatchUi.BehaviorDelegate { 
 
@@ -75,7 +74,7 @@ class AdvancedViewDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function toggleVibration() as Void {
-        var app = Application.getApp() as GarminApp;
+      var app = Application.getApp() as GarminApp; 
         
         var enabled = app.getVibrationEnabled();
         var newEnabled = !enabled;
@@ -87,7 +86,7 @@ class AdvancedViewDelegate extends WatchUi.BehaviorDelegate {
         // Push the VibrationView using the boolean (since your initialize expects true/false)
         WatchUi.pushView(
             new VibrationView(newEnabled),
-            new WatchUi.BehaviorDelegate(), // basic delegate so it can auto-close or be backed out of
+            new WatchUi.BehaviorDelegate(),
             WatchUi.SLIDE_IMMEDIATE
         );
     }
