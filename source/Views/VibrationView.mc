@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.System;
 import Toybox.Timer;
+import Rez;
 
 class VibrationView extends WatchUi.View {
 
@@ -15,7 +16,7 @@ class VibrationView extends WatchUi.View {
 
     function onShow() as Void {
         _closeTimer = new Timer.Timer();
-        _closeTimer.start(method(:closeMessage), 1200, false); // 1.2 seconds
+        _closeTimer.start(method(:closeMessage), 1200, false);
     }
 
     function onHide() as Void {
@@ -27,48 +28,22 @@ class VibrationView extends WatchUi.View {
 
     function closeMessage() as Void {
         WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
-
     }
 
-    // function onUpdate(dc as Dc) as Void {
-    //     var width = dc.getWidth();
-    //     var height = dc.getHeight();
-
-    //     var text = _enabled ? "Vibration ON" : "Vibration OFF";
-
-    //     dc.clear();
-    //     dc.drawText(
-    //         width / 2,
-    //         height / 2,
-    //         Graphics.FONT_LARGE,
-    //         text,
-    //         Graphics.TEXT_JUSTIFY_CENTER
-    //     );
-    // }
     function onUpdate(dc as Dc) as Void {
         var width = dc.getWidth();
         var height = dc.getHeight();
 
-        var text = _enabled ? "Vibration ON" : "Vibration OFF";
-
-        //  Full black background
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
-        //  Text color
-        if (_enabled) {
-            dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
-        } else {
-            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-        }
+        var iconRes = _enabled ? Rez.Drawables.VibOnIcon : Rez.Drawables.VibOffIcon;
+        var iconBmp = WatchUi.loadResource(iconRes);
 
-        // Big centered text
-        dc.drawText(
-            width / 2,
-            height / 2 - 10,
-            Graphics.FONT_LARGE,
-            text,
-            Graphics.TEXT_JUSTIFY_CENTER
+        dc.drawBitmap(
+            (width / 2) - (iconBmp.getWidth() / 2),
+            (height / 2) - (iconBmp.getHeight() / 2),
+            iconBmp
         );
     }
 }
