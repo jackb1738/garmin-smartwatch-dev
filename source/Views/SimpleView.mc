@@ -5,10 +5,10 @@ import Toybox.Lang;
 import Toybox.Timer;
 import Toybox.System;
 import Toybox.Attention;
+import Rez;
 
 class SimpleView extends WatchUi.View {
 
-    // UI Drawables
     private var _cadenceDisplay;
     private var _cadenceZoneDisplay;
     private var _heartrateDisplay;
@@ -219,29 +219,23 @@ class SimpleView extends WatchUi.View {
     }
 
     function drawVibrationModeIndicator(dc as Dc) as Void {
-    var app = Application.getApp();
-    var vibrationOn = app.getVibrationEnabled();
+        var app = Application.getApp();
+        var isVibrationOn = app.getVibrationEnabled();
+        var iconRes = isVibrationOn ? Rez.Drawables.VibOnIcon : Rez.Drawables.VibOffIcon;
+        var iconBmp = WatchUi.loadResource(iconRes);
 
-    dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        //dc.drawBitmap(
+        //    10,
+        //    10,
+        //   iconBmp
+        //);
 
-    if (vibrationOn) {
-        dc.drawText(
-            dc.getWidth() / 2,
-            dc.getHeight() - 30,
-            Graphics.FONT_XTINY,
-            "VIB ON",
-            Graphics.TEXT_JUSTIFY_CENTER
-        );
-    } else {
-        dc.drawText(
-            dc.getWidth() / 2,
-            dc.getHeight() - 30,
-            Graphics.FONT_XTINY,
-            "VIB OFF",
-            Graphics.TEXT_JUSTIFY_CENTER
+        dc.drawBitmap(
+            (dc.getWidth() - iconBmp.getWidth()) / 2 - 12, //- (iconBmp.getWidth() / 10),
+            dc.getHeight() - 45, //- (iconBmp.getHeight() / 10)
+            iconBmp
         );
     }
-}
 
     function drawDividers(dc as Dc) as Void {
         var w = dc.getWidth();
@@ -252,4 +246,5 @@ class SimpleView extends WatchUi.View {
         dc.drawLine(20, h * 0.60, w - 20, h * 0.60);
         dc.drawLine(20, h * 0.78, w - 20, h * 0.78);
     }
+
 }

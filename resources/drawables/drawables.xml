@@ -16,4 +16,6 @@
     <bitmap id="SettingsIcon" filename="settings_icon.png"/>
     <bitmap id="ResetIcon" filename="reset_icon.png" />
     <bitmap id="CheckMarkIcon" filename="check_mark.png" />
+    <bitmap id="VibOnIcon" filename="vib_on.png" />
+    <bitmap id="VibOffIcon" filename="vib_off.png" />
 </drawables>
